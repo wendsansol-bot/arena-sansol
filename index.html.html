@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arena Sansol — Painel TV</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --bg: #060810;
+    --panel: rgba(16,20,29,0.55);
+    --panel-2: rgba(21,26,38,0.66);
+    --border: rgba(255,255,255,0.10);
+    --border-strong: rgba(255,255,255,0.20);
+    --text: #eef1f6;
+    --text-dim: #9aa4b8;
+    --text-faint: #626c81;
+    --gold: #ffb74a;
+    --gold-2: #ff9433;
+    --gold-dim: rgba(255,183,74,0.16);
+    --silver: #cbd5e3;
+    --bronze: #e0975c;
+    --pos: #2fd67f;
+    --neg: #ff5468;
+
+    --cn: #ff7a2e;
+    --cn-soft: rgba(255,122,46,0.14);
+    --ab: #2f8bff;
+    --ab-soft: rgba(47,139,255,0.14);
+    --pv: #2fd67f;
+    --pv-soft: rgba(47,214,127,0.14);
+
+    --font-display: 'Teko', sans-serif;
+    --font-body: 'Manrope', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html, body{ width:100%; height:100%; overflow:hidden; background:#000; }
+  body{ display:flex; align-items:center; justify-content:center; font-family: var(--font-body); color: var(--text); }
+
+  #tv-canvas{
+    width: 1920px; height: 1080px;
+    position: absolute; top: 50%; left: 50%;
+    transform-origin: center center;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(255,138,61,0.10), transparent 60%),
+      radial-gradient(1200px 600px at 85% 0%, rgba(47,139,255,0.08), transparent 60%),
+      radial-gradient(1000px 700px at 50% 110%, rgba(47,214,127,0.06), transparent 60%),
+      var(--bg);
+    overflow: hidden;
+    display:flex; flex-direction: column;
+    padding: 20px 34px 24px;
+    gap: 12px;
+  }
+
+  /* ---------- Atmosphere ---------- */
+  .atmosphere{ position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+  .aurora{ position:absolute; inset:0; filter: blur(90px); }
+  .blob{ position:absolute; border-radius:50%; mix-blend-mode: screen; opacity:0.5; }
+  .blob-cn{ width:900px; height:900px; top:-320px; left:-220px; background: radial-gradient(circle, var(--gold-2), transparent 70%); animation: drift1 24s ease-in-out infinite alternate; }
+  .blob-ab{ width:800px; height:800px; top:-360px; right:-160px; background: radial-gradient(circle, var(--ab), transparent 70%); animation: drift2 29s ease-in-out infinite alternate; }
+  .blob-pv{ width:760px; height:760px; bottom:-320px; left:32%; background: radial-gradient(circle, var(--pv), transparent 70%); animation: drift3 33s ease-in-out infinite alternate; }
+  @keyframes drift1{ from{ transform: translate(0,0) scale(1);} to{ transform: translate(6%,4%) scale(1.1);} }
+  @keyframes drift2{ from{ transform: translate(0,0) scale(1);} to{ transform: translate(-5%,5%) scale(0.95);} }
+  @keyframes drift3{ from{ transform: translate(0,0) scale(1);} to{ transform: translate(4%,-6%) scale(1.06);} }
+
+  .grid-overlay{
+    position:absolute; inset:0;
+    background-image: linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size: 46px 46px;
+    mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, black 40%, transparent 90%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, black 40%, transparent 90%);
+  }
+
+  .hex{ position:absolute; width:340px; height:400px; opacity:0.5;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='58' height='100'><polygon points='29,0 58,15 58,45 29,60 0,45 0,15' fill='none' stroke='rgba(255,183,74,0.35)' stroke-width='1'/></svg>");
+    mask-image: radial-gradient(circle at var(--mx,0%) var(--my,0%), black 0%, transparent 72%);
+    -webkit-mask-image: radial-gradient(circle at var(--mx,0%) var(--my,0%), black 0%, transparent 72%);
+  }
+  .hex-tl{ top:-40px; left:-40px; --mx:20%; --my:20%; }
+  .hex-br{ bottom:-60px; right:-40px; --mx:80%; --my:80%; }
+
+  .beam{ position:absolute; top:-15%; width:360px; height:150%; clip-path: polygon(46% 0%, 54% 0%, 100% 100%, 0% 100%); transform-origin: top center; }
+  .beam-1{ left:6%; background: linear-gradient(180deg, rgba(255,255,255,0.09), transparent 68%); animation: sway1 15s ease-in-out infinite alternate; }
+  .beam-2{ right:8%; background: linear-gradient(180deg, rgba(255,183,74,0.10), transparent 68%); animation: sway2 19s ease-in-out infinite alternate; }
+  @keyframes sway1{ from{ transform: rotate(-9deg);} to{ transform: rotate(-3deg);} }
+  @keyframes sway2{ from{ transform: rotate(11deg);} to{ transform: rotate(5deg);} }
+
+  .floor{
+    position:absolute; left:-10%; right:-10%; bottom:-60px; height:280px;
+    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.09) 0 1px, transparent 1px 60px), repeating-linear-gradient(0deg, rgba(255,255,255,0.09) 0 1px, transparent 1px 44px);
+    transform: perspective(420px) rotateX(62deg); transform-origin: bottom;
+    mask-image: linear-gradient(to top, black, transparent); -webkit-mask-image: linear-gradient(to top, black, transparent);
+    opacity:0.45;
+  }
+  .vignette{ position:absolute; inset:0; background: radial-gradient(ellipse at 50% 40%, transparent 45%, rgba(3,4,8,0.62) 100%); }
+  .noise{ position:absolute; inset:0; opacity:0.05; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  .confetti-field{ position:absolute; inset:0; }
+  .confetti{ position:absolute; width:7px; height:7px; opacity:0.55; animation: fall linear infinite; }
+  @keyframes fall{ 0%{ transform: translateY(-8%) rotate(0deg); opacity:0;} 10%{opacity:.6;} 90%{opacity:.5;} 100%{ transform: translateY(112vh) rotate(340deg); opacity:0;} }
+
+  .hud-corner{ position:absolute; width:44px; height:44px; border-color: rgba(255,183,74,0.4); z-index:2; }
+  .hud-corner.tl{ top:14px; left:14px; border-top:2px solid; border-left:2px solid; border-radius:10px 0 0 0; }
+  .hud-corner.br{ bottom:14px; right:14px; border-bottom:2px solid; border-right:2px solid; border-radius:0 0 10px 0; }
+
+  /* ---------- Ticker (unchanged) ---------- */
+  .ticker{ flex: 0 0 auto; position:relative; z-index:1; background: linear-gradient(90deg, #ff7a2e, #2f8bff, #2fd67f); color: #05070a; overflow: hidden; white-space: nowrap; border-radius: 6px; }
+  .ticker-track{ display: inline-flex; gap: 44px; padding: 6px 0; animation: scroll-left 30s linear infinite; font-family: var(--font-mono); font-weight: 600; font-size: 16px; letter-spacing: 0.02em; }
+  .ticker-track span{ display:inline-flex; align-items:center; gap:8px; }
+  @keyframes scroll-left{ from{ transform: translateX(0); } to{ transform: translateX(-50%); } }
+
+  /* ---------- Header ---------- */
+  .tv-header{ flex: 0 0 auto; position:relative; z-index:1; display:flex; align-items:center; justify-content: space-between; gap: 20px; }
+  .brand{ display:flex; align-items:center; gap: 12px; flex: 0 0 auto; }
+  .brand-mark{ width: 42px; height:42px; border-radius: 10px; background: conic-gradient(from 220deg, var(--gold), var(--ab), var(--pv), var(--gold)); display:flex; align-items:center; justify-content:center; box-shadow: 0 0 18px rgba(255,183,74,0.35), 0 0 0 1px var(--border-strong); }
+  .brand-mark svg{ width:20px; height:20px; }
+  .brand-text .name{ font-family: var(--font-display); font-size: 31px; letter-spacing: 0.02em; line-height: 1; text-transform: uppercase; }
+  .brand-text .tag{ font-size: 13px; color: var(--text-faint); font-family: var(--font-mono); letter-spacing: 0.04em; margin-top: 3px; }
+
+  .tabbar{ display:flex; gap: 8px; flex: 1 1 auto; justify-content:center; }
+  .tab-pill{
+    font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 9px 15px; border-radius: 999px; border: 1px solid var(--border-strong);
+    color: var(--text-dim); background: rgba(255,255,255,0.03); cursor:pointer; white-space:nowrap;
+    transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  .tab-pill.active{
+    background: linear-gradient(90deg, var(--gold), var(--gold-2)); color:#1a0e02; border-color: transparent;
+    box-shadow: 0 0 22px rgba(255,183,74,0.45); font-weight: 700;
+  }
+
+  .header-right{ display:flex; align-items:center; gap: 10px; flex: 0 0 auto; }
+  .spotlight-card{ display:flex; align-items:center; gap:10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-strong); border-radius: 13px; padding: 6px 14px 6px 8px; }
+  .spotlight-avatar{ width:36px; height:36px; border-radius:50%; padding:2px; flex-shrink:0; background: conic-gradient(var(--pv), rgba(255,255,255,0.15)); box-shadow: 0 0 14px rgba(47,214,127,0.5); }
+  .spotlight-avatar .circle{ width:100%; height:100%; border-radius:50%; background: linear-gradient(160deg, var(--panel-2), var(--panel)); display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size: 17px; }
+  .spotlight-info{ line-height:1.25; }
+  .spotlight-info .lbl{ font-family: var(--font-mono); font-size: 12px; color: var(--text-faint); letter-spacing:0.06em; text-transform:uppercase; }
+  .spotlight-info .val{ font-size: 15px; font-weight: 700; }
+  .spotlight-info .mini-bar{ width:74px; height:4px; border-radius:999px; background: rgba(255,255,255,0.10); margin-top:4px; overflow:hidden; }
+  .spotlight-info .mini-bar i{ display:block; height:100%; width:78%; background: linear-gradient(90deg, var(--gold), var(--gold-2)); border-radius:999px; }
+
+  .live-badge{ display:flex; align-items:center; gap:7px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); padding: 8px 13px 8px 10px; border-radius: 999px; font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.05em; color: var(--text-dim); }
+  .dot-live{ width:7px; height:7px; border-radius:50%; background: var(--neg); animation: pulse 1.8s ease-out infinite; }
+  @keyframes pulse{ 0%{ box-shadow: 0 0 0 0 rgba(255,84,104,0.55);} 70%{ box-shadow: 0 0 0 8px rgba(255,84,104,0);} 100%{ box-shadow: 0 0 0 0 rgba(255,84,104,0);} }
+
+  /* ---------- Stage ---------- */
+  .stage{ flex: 1 1 auto; min-height: 0; position: relative; z-index: 1; background: rgba(10,13,20,0.22); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
+  .stage-progress{ position:absolute; top:0; left:0; height:3px; width:0%; background: linear-gradient(90deg, var(--gold), var(--ab), var(--pv)); z-index:5; }
+  .stage-progress.run{ animation: fillProgress linear forwards; }
+  @keyframes fillProgress{ from{ width:0%; } to{ width:100%; } }
+
+  .nav-btn{ position:absolute; top:50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.35); border: 1px solid var(--border-strong); display:flex; align-items:center; justify-content:center; color: var(--text-dim); cursor:pointer; z-index: 6; opacity:0; transition: opacity 0.25s ease, background 0.2s ease; }
+  .stage:hover .nav-btn{ opacity:1; }
+  .nav-btn:hover{ background: rgba(255,255,255,0.1); color: var(--text); }
+  .nav-btn.prev{ left: 14px; } .nav-btn.next{ right: 14px; }
+  .nav-btn svg{ width:17px; height:17px; }
+
+  .pause-btn{
+    position:absolute; top:14px; right:14px; z-index:6;
+    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(0,0,0,0.4); border: 1px solid var(--border-strong);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--text); cursor:pointer; opacity:0.88;
+    transition: background 0.2s ease, opacity 0.2s ease;
+  }
+  .pause-btn:hover{ background: rgba(255,255,255,0.14); opacity:1; }
+  .pause-btn svg{ width:15px; height:15px; }
+  .pause-btn .icon-play{ display:none; }
+  .pause-btn.is-paused .icon-pause{ display:none; }
+  .pause-btn.is-paused .icon-play{ display:block; }
+
+  .pause-tag{
+    position:absolute; top:19px; right:60px; z-index:6;
+    font-family: var(--font-mono); font-size: 13px; letter-spacing:0.08em; text-transform:uppercase;
+    color: var(--gold); background: var(--gold-dim); border: 1px solid rgba(255,183,74,0.35);
+    padding: 5px 11px; border-radius: 999px; opacity:0; pointer-events:none; transition: opacity 0.25s ease;
+  }
+  .pause-tag.show{ opacity:1; }
+
+  /* Frosted glass */
+  .store-card, .seller-card, .mvp-card, .mission-card, .rule-row, .side-card, .award-card, .total-cell, .seller-row, .recog-hero,
+  .kpi-card, .goal-card, .activity-card, .sales-card{
+    backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);
+  }
+
+  .scene{ position:absolute; inset: 0; padding: 24px 34px 18px; opacity: 0; visibility: hidden; transform: translateY(10px); transition: opacity 0.55s ease, transform 0.55s ease; display:flex; flex-direction: column; }
+  .scene.active{ opacity: 1; visibility: visible; transform: translateY(0); }
+  .scene-head{ flex: 0 0 auto; display:flex; align-items:baseline; gap: 12px; margin-bottom: 14px; }
+  .scene-eyebrow{ font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); }
+  .scene-title{ font-family: var(--font-display); font-size: 37px; text-transform: uppercase; letter-spacing: 0.01em; }
+  .scene-body{ flex: 1 1 auto; min-height: 0; display:flex; flex-direction: column; gap: 14px; }
+
+  /* ---------- Podium columns (shared by scene 1 & 2) ---------- */
+  .podium-stage{ flex: 1.6 1 0; min-height:0; display:flex; align-items:flex-end; justify-content:center; gap: 46px; padding: 6px 20px 0; }
+  .podium-col{ display:flex; flex-direction: column; align-items:center; width: 280px; position: relative; }
+
+  .crown-float{ position:absolute; top:-42px; color: var(--gold); filter: drop-shadow(0 0 10px rgba(255,183,74,0.8)); animation: floatCrown 2.6s ease-in-out infinite; }
+  .crown-float svg{ width: 30px; height:30px; }
+  @keyframes floatCrown{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-7px);} }
+
+  .avatar-ring{ width:88px; height:88px; border-radius:50%; padding:4px; margin-bottom:10px; }
+  .avatar-ring.big{ width:106px; height:106px; }
+  .avatar-circle{ width:100%; height:100%; border-radius:50%; background: linear-gradient(160deg, rgba(30,36,50,0.9), rgba(14,17,25,0.9)); display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size: 37px; box-shadow: inset 0 0 0 2px rgba(0,0,0,0.35); }
+  .avatar-ring.big .avatar-circle{ font-size: 44px; }
+
+  .team-cn .avatar-ring{ background: conic-gradient(var(--cn), rgba(255,255,255,0.14)); box-shadow: 0 0 26px rgba(255,122,46,0.55); }
+  .team-ab .avatar-ring{ background: conic-gradient(var(--ab), rgba(255,255,255,0.14)); box-shadow: 0 0 26px rgba(47,139,255,0.55); }
+  .team-pv .avatar-ring{ background: conic-gradient(var(--pv), rgba(255,255,255,0.14)); box-shadow: 0 0 26px rgba(47,214,127,0.55); }
+  .gold .avatar-ring{ background: conic-gradient(var(--gold), rgba(255,255,255,0.14)); box-shadow: 0 0 30px rgba(255,183,74,0.6); animation: ringPulse 3.2s ease-in-out infinite; }
+  .silver .avatar-ring{ background: conic-gradient(var(--silver), rgba(255,255,255,0.14)); box-shadow: 0 0 22px rgba(203,213,227,0.4); }
+  .bronze .avatar-ring{ background: conic-gradient(var(--bronze), rgba(255,255,255,0.14)); box-shadow: 0 0 22px rgba(224,151,92,0.4); }
+  @keyframes ringPulse{ 0%,100%{ box-shadow: 0 0 20px rgba(255,183,74,0.45);} 50%{ box-shadow: 0 0 40px rgba(255,183,74,0.75);} }
+
+  .col-name{ font-weight: 800; font-size: 22px; margin-top: 2px; text-align:center; }
+  .col-rank-label{ font-family: var(--font-mono); font-size: 13px; color: var(--text-faint); letter-spacing: 0.06em; margin-top: 3px; text-transform:uppercase; }
+  .col-rank-label.leader{ color: var(--gold); font-weight:700; }
+  .col-score{ font-family: var(--font-display); font-size: 51px; line-height: 1; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .podium-col.rank-1 .col-score{ font-size: 66px; }
+  .col-score .unit{ font-family: var(--font-mono); font-size: 15px; color: var(--text-faint); margin-left:5px; }
+  .col-mini{ font-size: 14px; color: var(--text-dim); text-align:center; margin-top: 6px; line-height: 1.55; }
+
+  .pedestal{ width:100%; margin-top: 16px; border-radius: 14px 14px 6px 6px; position: relative; display:flex; align-items:flex-start; justify-content:center; padding-top: 8px; box-shadow: inset 0 3px 10px rgba(255,255,255,0.16), inset 0 -16px 26px rgba(0,0,0,0.4); }
+  .pedestal .rank-num{ font-family: var(--font-display); font-size: 64px; color: rgba(0,0,0,0.32); }
+  .pedestal::after{ content:""; position:absolute; left:50%; bottom:-16px; transform: translateX(-50%); width:72%; height:24px; filter: blur(20px); opacity:0.55; border-radius:50%; }
+  .pedestal.h1{ height: 176px; } .pedestal.h2{ height: 122px; } .pedestal.h3{ height: 86px; }
+
+  .team-cn .pedestal{ background: linear-gradient(180deg, #ffb27a, #a3441b); } .team-cn .pedestal::after{ background: var(--cn); }
+  .team-ab .pedestal{ background: linear-gradient(180deg, #8fc0ff, #14509e); } .team-ab .pedestal::after{ background: var(--ab); }
+  .team-pv .pedestal{ background: linear-gradient(180deg, #8ff0bd, #157a45); } .team-pv .pedestal::after{ background: var(--pv); }
+  .gold .pedestal{ background: linear-gradient(180deg, #ffe19a, #b8792a); } .gold .pedestal::after{ background: var(--gold); }
+  .silver .pedestal{ background: linear-gradient(180deg, #eef2f7, #8b95a3); } .silver .pedestal::after{ background: var(--silver); }
+  .bronze .pedestal{ background: linear-gradient(180deg, #f0b384, #8a4e26); } .bronze .pedestal::after{ background: var(--bronze); }
+
+  .totals-row{ flex: 0 0 auto; display:grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+  .total-cell{ background: rgba(255,255,255,0.035); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; }
+  .total-cell .num{ font-family: var(--font-display); font-size: 39px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .total-cell .label{ font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+
+  .seller-list{ flex: 1 1 0; min-height:0; display:flex; flex-direction: column; gap: 8px; overflow:hidden; }
+  .seller-row{ display:flex; align-items:center; gap: 14px; background: rgba(255,255,255,0.035); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; }
+  .seller-row .pos{ font-family: var(--font-display); font-size: 24px; color: var(--text-faint); width: 28px; }
+  .seller-row .who{ flex:1; display:flex; align-items:center; gap:10px; }
+  .seller-row .who .dot{ width:8px; height:8px; border-radius:50%; }
+  .seller-row .who b{ font-size: 16px; }
+  .seller-row .pts{ font-family: var(--font-mono); font-weight: 700; color: var(--pos); font-size: 16px; }
+
+  /* ---------- Reconhecimento ---------- */
+  .recog-hero{ flex: 0 0 auto; display:flex; align-items:center; gap: 20px; justify-content:center; background: linear-gradient(120deg, rgba(255,183,74,0.12), rgba(255,255,255,0.02)); border: 1px solid var(--border-strong); border-radius: 16px; padding: 20px 30px; position:relative; overflow:hidden; }
+  .recog-hero .spark{ position:absolute; width:5px; height:5px; background: var(--gold); border-radius:1px; transform: rotate(45deg); opacity:0; animation: sparkle 3.6s ease-in-out infinite; }
+  @keyframes sparkle{ 0%{ opacity:0; transform: translateY(0) rotate(45deg) scale(0.6);} 35%{ opacity:0.9;} 100%{ opacity:0; transform: translateY(-46px) rotate(200deg) scale(1);} }
+  .recog-hero .trophy-big{ width: 58px; height:58px; border-radius: 14px; background: var(--gold-dim); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .recog-hero .trophy-big svg{ width: 28px; height:28px; color: var(--gold); }
+  .recog-hero .lead{ font-family: var(--font-mono); font-size: 13px; color: var(--text-faint); letter-spacing: 0.08em; text-transform: uppercase; }
+  .recog-hero .name{ font-family: var(--font-display); font-size: 46px; line-height: 1; }
+
+  .mvp-grid{ flex: 1 1 0; min-height:0; display:grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+  .mvp-card{ background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display:flex; flex-direction: column; align-items:center; text-align:center; gap: 8px; justify-content:center; }
+  .mvp-avatar{ width: 54px; height:54px; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size: 24px; }
+  .team-cn .mvp-avatar{ background: var(--cn-soft); color: var(--cn); box-shadow: 0 0 18px rgba(255,122,46,0.35); }
+  .team-ab .mvp-avatar{ background: var(--ab-soft); color: var(--ab); box-shadow: 0 0 18px rgba(47,139,255,0.35); }
+  .team-pv .mvp-avatar{ background: var(--pv-soft); color: var(--pv); box-shadow: 0 0 18px rgba(47,214,127,0.35); }
+  .mvp-card .store-label{ font-size: 13px; color: var(--text-faint); font-family: var(--font-mono); }
+  .mvp-card .mvp-name{ font-weight: 800; font-size: 22px; }
+  .mvp-card .mvp-fact{ font-size: 15px; color: var(--text-dim); }
+
+  /* ---------- Missões ---------- */
+  .mission-grid{ flex: 1 1 0; min-height:0; display:grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(2,1fr); gap: 14px; }
+  .mission-card{ background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; display:flex; flex-direction: column; gap: 6px; justify-content:center; position:relative; overflow:hidden; }
+  .mission-card .bolt{ width:34px; height:34px; border-radius:9px; background: var(--gold-dim); color: var(--gold); display:flex; align-items:center; justify-content:center; }
+  .mission-card .bolt svg{ width:17px; height:17px; }
+  .mission-card .m-title{ font-weight: 800; font-size: 19px; margin-top: 3px; }
+  .mission-card .m-sub{ font-size: 14px; color: var(--text-dim); }
+  .mission-card .m-bonus{ position:absolute; top:13px; right:15px; font-family: var(--font-mono); font-size: 12px; color: var(--gold); background: var(--gold-dim); padding: 3px 8px; border-radius: 999px; }
+
+  /* ---------- Visão geral do dia ---------- */
+  .kpi-grid{ flex: 0 0 auto; display:grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+  .kpi-card{ background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; display:flex; flex-direction:column; gap: 7px; }
+  .kpi-icon{ width:32px; height:32px; border-radius:9px; background: var(--gold-dim); color: var(--gold); display:flex; align-items:center; justify-content:center; }
+  .kpi-icon svg{ width:16px; height:16px; }
+  .kpi-label{ font-size: 13px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color: var(--text-dim); line-height:1.3; }
+  .kpi-value{ font-family: var(--font-display); font-size: 46px; line-height: 1; }
+  .kpi-value small{ font-family: var(--font-mono); font-size: 17px; color: var(--gold); margin-left:3px; }
+  .kpi-highlight{ display:flex; align-items:center; gap: 7px; font-size: 13px; color: var(--text-dim); }
+  .kpi-highlight .mini-avatar{ width:20px; height:20px; border-radius:50%; background: linear-gradient(160deg, rgba(30,36,50,0.9), rgba(14,17,25,0.9)); display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size: 12px; flex-shrink:0; }
+
+  .goal-grid{ flex: 0 0 auto; display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .goal-card{ background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; }
+  .goal-card h4{ font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 12px; }
+  .bar-compare{ display:flex; flex-direction: column; gap: 9px; }
+  .bar-compare .row{ display:flex; align-items:center; gap: 10px; }
+  .bar-compare .lbl{ width:66px; font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); text-transform:uppercase; }
+  .bar-compare .track{ flex:1; height:18px; border-radius: 5px; background: rgba(255,255,255,0.06); overflow:hidden; }
+  .bar-compare .fill{ height:100%; border-radius: 5px; }
+  .bar-compare .fill.done{ background: linear-gradient(90deg, var(--gold-2), var(--gold)); }
+  .bar-compare .fill.target{ background: rgba(255,255,255,0.30); }
+  .bar-compare .val{ font-family: var(--font-mono); font-size: 13px; color: var(--text); white-space:nowrap; width: 92px; }
+  .goal-progress-text{ margin-top: 10px; font-size: 15px; color: var(--text-dim); text-align:center; }
+
+  .gauge-wrap{ display:flex; align-items:center; gap: 20px; }
+  .gauge{ width:104px; height:104px; border-radius:50%; background: conic-gradient(var(--gold) calc(var(--pct)*1%), rgba(255,255,255,0.08) 0); display:flex; align-items:center; justify-content:center; position:relative; flex-shrink:0; }
+  .gauge::before{ content:""; position:absolute; inset:9px; border-radius:50%; background: #0c0e15; }
+  .gauge-inner{ position:relative; z-index:1; text-align:center; }
+  .gauge-inner .pct{ font-family: var(--font-display); font-size: 30px; line-height: 1; }
+  .gauge-inner .amt{ font-size: 12px; color: var(--text-faint); font-family: var(--font-mono); margin-top:2px; }
+  .trend-chart{ width:100%; height:78px; display:block; margin-top:8px; }
+  .trend-fill{ fill: url(#trendGrad); }
+  .trend-line{ fill:none; stroke: var(--gold); stroke-width:3; stroke-linejoin:round; stroke-linecap:round; }
+  .trend-dot{ fill: var(--gold); filter: drop-shadow(0 0 5px rgba(255,183,74,0.8)); }
+  .trend-stop-a{ stop-color: var(--gold); stop-opacity:0.45; }
+  .trend-stop-b{ stop-color: var(--gold); stop-opacity:0; }
+  .trend-labels{ display:flex; justify-content:space-between; margin-top:4px; font-family: var(--font-mono); font-size: 10px; color: var(--text-faint); }
+
+  .detail-grid{ flex: 1 1 0; min-height:0; display:grid; grid-template-columns: 1fr 1.3fr; gap: 14px; }
+  .activity-card, .sales-card{ background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; display:flex; flex-direction: column; overflow:hidden; }
+  .activity-card h4, .sales-card h4{ font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 10px; }
+  .activity-row{ display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-top: 1px solid var(--border); font-size: 16px; color: var(--text-dim); }
+  .activity-row:first-of-type{ border-top:none; }
+  .activity-row b{ color: var(--text); font-family: var(--font-mono); font-size: 17px; }
+  .sales-table{ width:100%; border-collapse: collapse; font-size: 15px; }
+  .sales-table th{ text-align:left; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; color: var(--text-faint); padding-bottom: 8px; letter-spacing: .04em; }
+  .sales-table td{ padding: 7px 0; border-top: 1px solid var(--border); color: var(--text-dim); }
+  .sales-table td:first-child{ font-family: var(--font-mono); color: var(--text); }
+  .status-pill{ font-family: var(--font-mono); font-size: 12px; padding: 3px 9px; border-radius: 999px; white-space:nowrap; }
+  .status-pill.ok{ background: rgba(47,214,127,0.14); color: var(--pos); }
+  .status-pill.pending{ background: var(--gold-dim); color: var(--gold); }
+
+  /* ---------- Pontuação + desempate ---------- */
+  .split{ flex: 1 1 0; min-height:0; display:grid; grid-template-columns: 1.3fr 1fr; gap: 18px; }
+  .rule-list{ display:flex; flex-direction: column; gap: 9px; }
+  .rule-row{ display:flex; align-items:center; justify-content: space-between; background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 13px 20px; }
+  .rule-row .desc{ font-size: 18px; }
+  .rule-row .desc .sub{ display:block; font-size: 13px; color: var(--text-faint); margin-top:2px; }
+  .rule-pts{ font-family: var(--font-mono); font-weight: 700; font-size: 18px; padding: 6px 13px; border-radius: 999px; background: rgba(47,214,127,0.12); color: var(--pos); white-space:nowrap; }
+  .rule-pts.neg{ background: rgba(255,84,104,0.12); color: var(--neg); }
+
+  .side-card{ background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+  .side-card h4{ font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 12px; }
+  .ol-list{ list-style:none; display:flex; flex-direction: column; gap: 11px; }
+  .ol-list li{ display:flex; gap: 11px; align-items:baseline; font-size: 18px; color: var(--text-dim); }
+  .ol-list .idx{ font-family: var(--font-display); font-size: 25px; color: var(--gold); min-width: 24px; }
+
+  .award-card{ background: linear-gradient(160deg, rgba(255,183,74,0.10), var(--panel-2)); border: 1px solid var(--border-strong); border-radius: 14px; padding: 22px; }
+  .award-card .trophy-big{ width: 48px; height:48px; border-radius: 12px; background: var(--gold-dim); display:flex; align-items:center; justify-content:center; margin-bottom: 10px; }
+  .award-card .trophy-big svg{ width: 24px; height:24px; color: var(--gold); }
+  .award-card h3{ font-family: var(--font-display); font-size: 28px; text-transform: uppercase; margin-bottom: 8px; }
+  .award-card ul{ list-style:none; display:flex; flex-direction:column; gap: 9px; }
+  .award-card li{ font-size: 17px; color: var(--text-dim); padding-left: 18px; position:relative; }
+  .award-card li::before{ content:""; position:absolute; left:0; top:7px; width:6px; height:6px; border-radius:50%; background: var(--gold); }
+
+  .bullet-list{ display:flex; flex-direction: column; gap: 10px; }
+  .bullet-list li{ list-style:none; font-size: 17px; color: var(--text-dim); padding-left: 18px; position: relative; }
+  .bullet-list li::before{ content:""; position:absolute; left:0; top:6px; width:6px; height:6px; border-radius:50%; background: var(--text-faint); }
+
+  @media (prefers-reduced-motion: reduce){
+    .ticker-track{ animation: none; } .dot-live{ animation: none; } .stage-progress.run{ animation: none; }
+    .scene{ transition: none; } *{ transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="tv-canvas">
+
+  <div class="atmosphere">
+    <div class="aurora">
+      <span class="blob blob-cn"></span>
+      <span class="blob blob-ab"></span>
+      <span class="blob blob-pv"></span>
+    </div>
+    <div class="grid-overlay"></div>
+    <div class="hex hex-tl"></div>
+    <div class="hex hex-br"></div>
+    <div class="beam beam-1"></div>
+    <div class="beam beam-2"></div>
+    <div class="floor"></div>
+    <div class="vignette"></div>
+    <div class="noise"></div>
+    <div class="confetti-field" id="confettiField"></div>
+  </div>
+  <div class="hud-corner tl"></div>
+  <div class="hud-corner br"></div>
+
+  <div class="ticker" role="marquee" aria-label="Placar ao vivo">
+    <div class="ticker-track">
+      <span>🔥 PARQUE VERDE assume a liderança geral do Duelo</span>
+      <span>⚡ CIDADE NOVA é a Loja Líder do Dia de hoje</span>
+      <span>🏆 41 vendas fechadas na campanha até agora</span>
+      <span>📈 251 leads qualificados cadastrados</span>
+      <span>🎯 Novas missões relâmpago em breve</span>
+      <span>🔥 PARQUE VERDE assume a liderança geral do Duelo</span>
+      <span>⚡ CIDADE NOVA é a Loja Líder do Dia de hoje</span>
+      <span>🏆 41 vendas fechadas na campanha até agora</span>
+      <span>📈 251 leads qualificados cadastrados</span>
+      <span>🎯 Novas missões relâmpago em breve</span>
+    </div>
+  </div>
+
+  <div class="tv-header">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#05070a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+      </div>
+      <div class="brand-text">
+        <div class="name">Arena Sansol</div>
+        <div class="tag">Início --/--/---- · Encerramento --/--/----</div>
+      </div>
+    </div>
+
+    <div class="tabbar" id="tabbar"></div>
+
+    <div class="header-right">
+      <div class="spotlight-card">
+        <div class="spotlight-avatar"><div class="circle">JT</div></div>
+        <div class="spotlight-info">
+          <div class="lbl">🏅 Destaque da campanha</div>
+          <div class="val">Juliana Torres · 96 pts</div>
+          <div class="mini-bar"><i></i></div>
+        </div>
+      </div>
+      <div class="live-badge"><span class="dot-live"></span> Atualizado diariamente</div>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="stage-progress" id="stageProgress"></div>
+    <div class="nav-btn prev" id="btnPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></div>
+    <div class="nav-btn next" id="btnNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+    <span class="pause-tag" id="pauseTag">Pausado</span>
+    <div class="pause-btn" id="btnPause" role="button" aria-label="Pausar rotação">
+      <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+      <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7L7 5Z"/></svg>
+    </div>
+
+    <!-- SCENE 1 — Placar das lojas -->
+    <div class="scene active" data-title="Placar">
+      <div class="scene-head"><span class="scene-eyebrow">Ao vivo</span><span class="scene-title">Placar das Lojas</span></div>
+      <div class="scene-body">
+        <div class="podium-stage">
+
+          <div class="podium-col team-cn rank-2">
+            <div class="avatar-ring"><div class="avatar-circle">CN</div></div>
+            <div class="col-name">Cidade Nova</div>
+            <div class="col-rank-label">2º lugar</div>
+            <div class="col-score" data-target="363">0<span class="unit">pts</span></div>
+            <div class="col-mini">86 leads · 42 visitas<br>14 vendas · 7 acima do ticket</div>
+            <div class="pedestal h2"><span class="rank-num">2</span></div>
+          </div>
+
+          <div class="podium-col team-pv rank-1">
+            <span class="crown-float"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18l-1.5-9-4.5 3-3-6-3 6-4.5-3L3 18Z"/></svg></span>
+            <div class="avatar-ring big"><div class="avatar-circle">PV</div></div>
+            <div class="col-name">Parque Verde</div>
+            <div class="col-rank-label leader">Líder geral</div>
+            <div class="col-score" data-target="422">0<span class="unit">pts</span></div>
+            <div class="col-mini">94 leads · 47 visitas<br>16 vendas · 9 acima do ticket</div>
+            <div class="pedestal h1"><span class="rank-num">1</span></div>
+          </div>
+
+          <div class="podium-col team-ab rank-3">
+            <div class="avatar-ring"><div class="avatar-circle">AB</div></div>
+            <div class="col-name">Almirante Barroso</div>
+            <div class="col-rank-label">3º lugar</div>
+            <div class="col-score" data-target="281">0<span class="unit">pts</span></div>
+            <div class="col-mini">71 leads · 35 visitas<br>11 vendas · 5 acima do ticket</div>
+            <div class="pedestal h3"><span class="rank-num">3</span></div>
+          </div>
+
+        </div>
+        <div class="totals-row">
+          <div class="total-cell"><div class="num" data-target="251">0</div><div class="label">Leads qualificados</div></div>
+          <div class="total-cell"><div class="num" data-target="124">0</div><div class="label">Visitas realizadas</div></div>
+          <div class="total-cell"><div class="num" data-target="41">0</div><div class="label">Fechamentos</div></div>
+          <div class="total-cell"><div class="num" data-target="3">0</div><div class="label">Cancelamentos</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 2 — Ranking de vendedores -->
+    <div class="scene" data-title="Vendedores">
+      <div class="scene-head"><span class="scene-eyebrow">Desempenho individual</span><span class="scene-title">Ranking de Vendedores</span></div>
+      <div class="scene-body">
+        <div class="podium-stage">
+
+          <div class="podium-col silver">
+            <div class="avatar-ring"><div class="avatar-circle">AB</div></div>
+            <div class="col-name">Ana Beatriz</div>
+            <div class="col-rank-label">Cidade Nova · 2º lugar</div>
+            <div class="col-score" data-target="89">0<span class="unit">pts</span></div>
+            <div class="col-mini">14 vendas fechadas</div>
+            <div class="pedestal h2"><span class="rank-num">2</span></div>
+          </div>
+
+          <div class="podium-col gold">
+            <span class="crown-float"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18l-1.5-9-4.5 3-3-6-3 6-4.5-3L3 18Z"/></svg></span>
+            <div class="avatar-ring big"><div class="avatar-circle">JT</div></div>
+            <div class="col-name">Juliana Torres</div>
+            <div class="col-rank-label leader">Parque Verde · 1º lugar</div>
+            <div class="col-score" data-target="96">0<span class="unit">pts</span></div>
+            <div class="col-mini">16 vendas fechadas</div>
+            <div class="pedestal h1"><span class="rank-num">1</span></div>
+          </div>
+
+          <div class="podium-col bronze">
+            <div class="avatar-ring"><div class="avatar-circle">RS</div></div>
+            <div class="col-name">Rafael Souza</div>
+            <div class="col-rank-label">Almirante Barroso · 3º lugar</div>
+            <div class="col-score" data-target="74">0<span class="unit">pts</span></div>
+            <div class="col-mini">11 vendas fechadas</div>
+            <div class="pedestal h3"><span class="rank-num">3</span></div>
+          </div>
+
+        </div>
+        <div class="seller-list">
+          <div class="seller-row"><span class="pos">4º</span><span class="who"><span class="dot" style="background:var(--pv)"></span><b>Marcos Lima</b> · Parque Verde</span><span class="pts">61 pts</span></div>
+          <div class="seller-row"><span class="pos">5º</span><span class="who"><span class="dot" style="background:var(--cn)"></span><b>Camila Rocha</b> · Cidade Nova</span><span class="pts">58 pts</span></div>
+          <div class="seller-row"><span class="pos">6º</span><span class="who"><span class="dot" style="background:var(--ab)"></span><b>Bruno Alves</b> · Almirante Barroso</span><span class="pts">52 pts</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 3 — Reconhecimento do dia -->
+    <div class="scene" data-title="Reconhecimento">
+      <div class="scene-head"><span class="scene-eyebrow">Encerramento do dia</span><span class="scene-title">Reconhecimento do Dia</span></div>
+      <div class="scene-body">
+        <div class="recog-hero">
+          <span class="spark" style="top:18%; left:22%; animation-delay:0s;"></span>
+          <span class="spark" style="top:65%; left:30%; animation-delay:0.8s;"></span>
+          <span class="spark" style="top:25%; left:68%; animation-delay:1.6s;"></span>
+          <span class="spark" style="top:70%; left:74%; animation-delay:2.3s;"></span>
+          <span class="spark" style="top:40%; left:12%; animation-delay:1.1s;"></span>
+          <span class="spark" style="top:45%; left:88%; animation-delay:2.9s;"></span>
+          <div class="trophy-big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div>
+          <div><div class="lead">🏆 Loja líder do dia</div><div class="name">Cidade Nova</div></div>
+        </div>
+        <div class="mvp-grid">
+          <div class="mvp-card team-cn"><div class="mvp-avatar">AB</div><div class="store-label">MVP · Cidade Nova</div><div class="mvp-name">Ana Beatriz</div><div class="mvp-fact">4 vendas fechadas hoje</div></div>
+          <div class="mvp-card team-ab"><div class="mvp-avatar">RS</div><div class="store-label">MVP · Almirante Barroso</div><div class="mvp-name">Rafael Souza</div><div class="mvp-fact">3 vendas fechadas hoje</div></div>
+          <div class="mvp-card team-pv"><div class="mvp-avatar">JT</div><div class="store-label">MVP · Parque Verde</div><div class="mvp-name">Juliana Torres</div><div class="mvp-fact">Melhor ticket médio do dia</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 4 — Missões (resultado do dia) -->
+    <div class="scene" data-title="Missões">
+      <div class="scene-head"><span class="scene-eyebrow">Desafios especiais</span><span class="scene-title">Missões Relâmpago</span></div>
+      <div class="scene-body">
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6M17.5 5.5l1-1"/></svg></div></div>
+            <div class="kpi-label">Primeira venda do dia</div>
+            <div class="kpi-value">08:14</div>
+            <div class="kpi-highlight"><div class="mini-avatar">AB</div>R$ 1.540 · Ana Beatriz</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-5-2V6l5 2m0 12 6-2m-6 2V8m6 10 5 2V8l-5-2m0 12V6m0 0-6-2"/></svg></div></div>
+            <div class="kpi-label">Mais visitas realizadas</div>
+            <div class="kpi-value">24</div>
+            <div class="kpi-highlight"><div class="mini-avatar">RS</div>Destaque: Rafael Souza</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.5.5.9 1.2 1 2h6c.1-.8.5-1.5 1-2A6 6 0 0 0 12 3Z"/></svg></div></div>
+            <div class="kpi-label">Mais leads qualificados</div>
+            <div class="kpi-value">18</div>
+            <div class="kpi-highlight"><div class="mini-avatar">ML</div>Destaque: Marcos Lima</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 19 5M7.5 9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM16.5 20a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg></div></div>
+            <div class="kpi-label">Melhor taxa de conversão</div>
+            <div class="kpi-value">19,5<small>%</small></div>
+            <div class="kpi-highlight"><div class="mini-avatar">JT</div>Destaque: Juliana Torres</div>
+          </div>
+        </div>
+
+        <div class="goal-grid">
+          <div class="goal-card">
+            <h4>Meta diária de fechamentos</h4>
+            <div class="bar-compare">
+              <div class="row"><span class="lbl">Realizado</span><div class="track"><div class="fill done" style="width:83%"></div></div><span class="val">15 fechamentos</span></div>
+              <div class="row"><span class="lbl">Meta</span><div class="track"><div class="fill target" style="width:100%"></div></div><span class="val">18 fechamentos</span></div>
+            </div>
+            <div class="goal-progress-text">Progresso: 83,3%</div>
+          </div>
+          <div class="goal-card">
+            <h4>Meta diária de faturamento</h4>
+            <div class="gauge-wrap">
+              <div class="gauge" style="--pct:81"><div class="gauge-inner"><div class="pct">81%</div><div class="amt">de R$ 35 mil</div></div></div>
+              <div style="flex:1">
+                <div class="goal-progress-text" style="text-align:left; margin-top:0;">Faturamento total<br><span style="font-family:var(--font-display); font-size:32px; color:var(--text);">R$ 28.500</span></div>
+                <svg class="trend-chart" viewBox="0 0 300 100" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" class="trend-stop-a"/>
+                      <stop offset="100%" class="trend-stop-b"/>
+                    </linearGradient>
+                  </defs>
+                  <path class="trend-fill" d="M0,72 C 30,66 45,60 75,64 C 105,68 120,50 150,44 C 180,38 195,34 225,22 C 255,10 270,16 300,8 L300,100 L0,100 Z"/>
+                  <path class="trend-line" d="M0,72 C 30,66 45,60 75,64 C 105,68 120,50 150,44 C 180,38 195,34 225,22 C 255,10 270,16 300,8"/>
+                  <circle class="trend-dot" cx="300" cy="8" r="4.5"/>
+                </svg>
+                <div class="trend-labels"><span>-6 dias</span><span>Hoje</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-grid">
+          <div class="activity-card">
+            <h4>Atividades do dia</h4>
+            <div class="activity-row"><span>Visita</span><b>3</b></div>
+            <div class="activity-row"><span>Reunião</span><b>3</b></div>
+            <div class="activity-row"><span>Lead gerado</span><b>4</b></div>
+            <div class="activity-row"><span>Venda</span><b>5</b></div>
+            <div class="activity-row"><span>E-mail</span><b>1</b></div>
+          </div>
+          <div class="sales-card">
+            <h4>Vendas recentes do dia</h4>
+            <table class="sales-table">
+              <tr><th>ID</th><th>Cliente</th><th>Valor</th><th>Status</th></tr>
+              <tr><td>10231</td><td>Fernanda Alves</td><td>R$ 4.200</td><td><span class="status-pill ok">Fechado</span></td></tr>
+              <tr><td>10232</td><td>Marcos Lima</td><td>R$ 2.850</td><td><span class="status-pill ok">Fechado</span></td></tr>
+              <tr><td>10233</td><td>Camila Rocha</td><td>R$ 1.980</td><td><span class="status-pill pending">Em análise</span></td></tr>
+              <tr><td>10234</td><td>Bruno Alves</td><td>R$ 3.400</td><td><span class="status-pill ok">Fechado</span></td></tr>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SCENE 6 — Sistema de pontuação + desempate -->
+    <div class="scene" data-title="Pontuação">
+      <div class="scene-head"><span class="scene-eyebrow">Como funciona</span><span class="scene-title">Sistema de Pontuação</span></div>
+      <div class="scene-body">
+        <div class="split">
+          <div class="rule-list">
+            <div class="rule-row"><div class="desc">Lead qualificado cadastrado</div><div class="rule-pts">+1 pt</div></div>
+            <div class="rule-row"><div class="desc">Visita realizada</div><div class="rule-pts">+3 pts</div></div>
+            <div class="rule-row"><div class="desc">Venda fechada</div><div class="rule-pts">+10 pts</div></div>
+            <div class="rule-row"><div class="desc">Venda com ticket acima da média<span class="sub">Referência definida pela empresa</span></div><div class="rule-pts">+3 pts</div></div>
+            <div class="rule-row"><div class="desc">Contrato cancelado<span class="sub">Penalidade</span></div><div class="rule-pts neg">−10 pts</div></div>
+          </div>
+          <div class="side-card">
+            <h4>Critérios de desempate</h4>
+            <ul class="ol-list">
+              <li><span class="idx">01</span> Maior número de fechamentos</li>
+              <li><span class="idx">02</span> Maior faturamento</li>
+              <li><span class="idx">03</span> Menor número de cancelamentos</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 6 — Premiação + regras gerais -->
+    <div class="scene" data-title="Premiação">
+      <div class="scene-head"><span class="scene-eyebrow">Ao final da campanha</span><span class="scene-title">Premiação &amp; Regras</span></div>
+      <div class="scene-body">
+        <div class="split">
+          <div class="award-card">
+            <div class="trophy-big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div>
+            <h3>Loja campeã do Duelo</h3>
+            <ul>
+              <li>Troféu oficial da campanha</li>
+              <li>Reconhecimento institucional</li>
+              <li>Premiação especial definida pela Diretoria</li>
+              <li>MVPs de cada unidade também são reconhecidos</li>
+            </ul>
+          </div>
+          <div class="side-card">
+            <h4>Regras gerais</h4>
+            <ul class="bullet-list">
+              <li>Só contam leads devidamente qualificados e registrados</li>
+              <li>Só pontuam visitas efetivamente realizadas</li>
+              <li>Vendas só valem após a formalização do contrato</li>
+              <li>Casos não previstos são avaliados pela Diretoria Comercial</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  function fitScreen(){
+    var canvas = document.getElementById('tv-canvas');
+    var scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    canvas.style.transform = 'translate(-50%, -50%) scale(' + scale + ')';
+  }
+  window.addEventListener('resize', fitScreen);
+  fitScreen();
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ROTATE_MS = 15000;
+  var isPaused = false;
+
+  if(!reduceMotion){
+    var confettiColors = ['#ff7a2e', '#2f8bff', '#2fd67f', '#ffb74a'];
+    var field = document.getElementById('confettiField');
+    for(var i = 0; i < 16; i++){
+      var p = document.createElement('span');
+      p.className = 'confetti';
+      p.style.left = (Math.random() * 100) + '%';
+      p.style.background = confettiColors[i % confettiColors.length];
+      p.style.borderRadius = (i % 3 === 0) ? '50%' : '2px';
+      p.style.animationDuration = (16 + Math.random() * 14) + 's';
+      p.style.animationDelay = (Math.random() * -22) + 's';
+      p.style.width = p.style.height = (5 + Math.random() * 5) + 'px';
+      field.appendChild(p);
+    }
+  }
+
+  function playNumbers(scope){
+    scope.querySelectorAll('[data-target]').forEach(function(el){
+      var target = parseInt(el.getAttribute('data-target'), 10);
+      if(reduceMotion){ el.childNodes[0].nodeValue = target.toLocaleString('pt-BR'); return; }
+      var startTime = null;
+      function step(ts){
+        if(!startTime) startTime = ts;
+        var progress = Math.min((ts - startTime) / 1100, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        el.childNodes[0].nodeValue = Math.floor(eased * target).toLocaleString('pt-BR');
+        if(progress < 1) requestAnimationFrame(step);
+        else el.childNodes[0].nodeValue = target.toLocaleString('pt-BR');
+      }
+      el.childNodes[0].nodeValue = '0';
+      requestAnimationFrame(step);
+    });
+  }
+
+  var scenes = Array.from(document.querySelectorAll('.scene'));
+  var tabbar = document.getElementById('tabbar');
+  var progressBar = document.getElementById('stageProgress');
+  var current = 0;
+  var timer = null;
+
+  scenes.forEach(function(s, i){
+    var t = document.createElement('span');
+    t.className = 'tab-pill' + (i === 0 ? ' active' : '');
+    t.textContent = s.getAttribute('data-title');
+    t.addEventListener('click', function(){ goTo(i, true); });
+    tabbar.appendChild(t);
+  });
+  var tabs = tabbar.querySelectorAll('.tab-pill');
+
+  function goTo(i, manual){
+    scenes[current].classList.remove('active');
+    tabs[current].classList.remove('active');
+    current = (i + scenes.length) % scenes.length;
+    scenes[current].classList.add('active');
+    tabs[current].classList.add('active');
+    playNumbers(scenes[current]);
+    if(isPaused){
+      progressBar.classList.remove('run');
+      progressBar.style.animation = 'none';
+      void progressBar.offsetWidth;
+    } else {
+      restartProgress();
+      if(manual) restartTimer();
+    }
+  }
+  function restartProgress(){
+    progressBar.classList.remove('run');
+    progressBar.style.animation = 'none';
+    void progressBar.offsetWidth;
+    progressBar.style.animation = '';
+    progressBar.style.animationDuration = ROTATE_MS + 'ms';
+    progressBar.classList.add('run');
+  }
+  function restartTimer(){
+    clearInterval(timer);
+    if(!reduceMotion && !isPaused){ timer = setInterval(function(){ goTo(current + 1); }, ROTATE_MS); }
+  }
+  function setPaused(val){
+    isPaused = val;
+    var btn = document.getElementById('btnPause');
+    var tag = document.getElementById('pauseTag');
+    btn.classList.toggle('is-paused', isPaused);
+    tag.classList.toggle('show', isPaused);
+    if(isPaused){
+      clearInterval(timer);
+    } else {
+      restartProgress();
+      restartTimer();
+    }
+  }
+  document.getElementById('btnPause').addEventListener('click', function(){ setPaused(!isPaused); });
+  document.addEventListener('keydown', function(e){ if(e.code === 'Space'){ e.preventDefault(); setPaused(!isPaused); } });
+  document.getElementById('btnNext').addEventListener('click', function(){ goTo(current + 1, true); });
+  document.getElementById('btnPrev').addEventListener('click', function(){ goTo(current - 1, true); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight') goTo(current + 1, true);
+    if(e.key === 'ArrowLeft') goTo(current - 1, true);
+  });
+
+  playNumbers(scenes[0]);
+  restartProgress();
+  restartTimer();
+</script>
+
+</body>
+</html>
