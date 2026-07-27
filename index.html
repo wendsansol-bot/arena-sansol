@@ -9,8 +9,8 @@
 
   :root{
     --bg: #060810;
-    --panel: rgba(16,20,29,0.55);
-    --panel-2: rgba(21,26,38,0.66);
+    --panel: rgba(14,17,25,0.80);
+    --panel-2: rgba(18,22,32,0.84);
     --border: rgba(255,255,255,0.10);
     --border-strong: rgba(255,255,255,0.20);
     --text: #eef1f6;
@@ -57,11 +57,11 @@
 
   /* ---------- Atmosphere ---------- */
   .atmosphere{ position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
-  .aurora{ position:absolute; inset:0; filter: blur(90px); }
-  .blob{ position:absolute; border-radius:50%; mix-blend-mode: screen; opacity:0.5; }
-  .blob-cn{ width:900px; height:900px; top:-320px; left:-220px; background: radial-gradient(circle, var(--gold-2), transparent 70%); animation: drift1 24s ease-in-out infinite alternate; }
-  .blob-ab{ width:800px; height:800px; top:-360px; right:-160px; background: radial-gradient(circle, var(--ab), transparent 70%); animation: drift2 29s ease-in-out infinite alternate; }
-  .blob-pv{ width:760px; height:760px; bottom:-320px; left:32%; background: radial-gradient(circle, var(--pv), transparent 70%); animation: drift3 33s ease-in-out infinite alternate; }
+  .aurora{ position:absolute; inset:0; }
+  .blob{ position:absolute; border-radius:50%; mix-blend-mode: screen; opacity:0.42; }
+  .blob-cn{ width:900px; height:900px; top:-320px; left:-220px; background: radial-gradient(circle, var(--gold-2) 0%, rgba(255,148,51,0.5) 30%, transparent 72%); animation: drift1 24s ease-in-out infinite alternate; }
+  .blob-ab{ width:800px; height:800px; top:-360px; right:-160px; background: radial-gradient(circle, var(--ab) 0%, rgba(47,139,255,0.5) 30%, transparent 72%); animation: drift2 29s ease-in-out infinite alternate; }
+  .blob-pv{ width:760px; height:760px; bottom:-320px; left:32%; background: radial-gradient(circle, var(--pv) 0%, rgba(47,214,127,0.5) 30%, transparent 72%); animation: drift3 33s ease-in-out infinite alternate; }
   @keyframes drift1{ from{ transform: translate(0,0) scale(1);} to{ transform: translate(6%,4%) scale(1.1);} }
   @keyframes drift2{ from{ transform: translate(0,0) scale(1);} to{ transform: translate(-5%,5%) scale(0.95);} }
   @keyframes drift3{ from{ transform: translate(0,0) scale(1);} to{ transform: translate(4%,-6%) scale(1.06);} }
@@ -96,9 +96,6 @@
     opacity:0.45;
   }
   .vignette{ position:absolute; inset:0; background: radial-gradient(ellipse at 50% 40%, transparent 45%, rgba(3,4,8,0.62) 100%); }
-  .noise{ position:absolute; inset:0; opacity:0.05; mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  }
   .confetti-field{ position:absolute; inset:0; }
   .confetti{ position:absolute; width:7px; height:7px; opacity:0.55; animation: fall linear infinite; }
   @keyframes fall{ 0%{ transform: translateY(-8%) rotate(0deg); opacity:0;} 10%{opacity:.6;} 90%{opacity:.5;} 100%{ transform: translateY(112vh) rotate(340deg); opacity:0;} }
@@ -182,10 +179,7 @@
   .pause-tag.show{ opacity:1; }
 
   /* Frosted glass */
-  .store-card, .seller-card, .mvp-card, .mission-card, .rule-row, .side-card, .award-card, .total-cell, .seller-row, .recog-hero,
-  .kpi-card, .goal-card, .activity-card, .sales-card{
-    backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);
-  }
+  /* Cards use a solid-ish tint instead of live backdrop blur — much lighter on mobile GPUs */
 
   .scene{ position:absolute; inset: 0; padding: 24px 34px 18px; opacity: 0; visibility: hidden; transform: translateY(10px); transition: opacity 0.55s ease, transform 0.55s ease; display:flex; flex-direction: column; }
   .scene.active{ opacity: 1; visibility: visible; transform: translateY(0); }
@@ -249,23 +243,32 @@
   .seller-row .pts{ font-family: var(--font-mono); font-weight: 700; color: var(--pos); font-size: 16px; }
 
   /* ---------- Reconhecimento ---------- */
-  .recog-hero{ flex: 0 0 auto; display:flex; align-items:center; gap: 20px; justify-content:center; background: linear-gradient(120deg, rgba(255,183,74,0.12), rgba(255,255,255,0.02)); border: 1px solid var(--border-strong); border-radius: 16px; padding: 20px 30px; position:relative; overflow:hidden; }
-  .recog-hero .spark{ position:absolute; width:5px; height:5px; background: var(--gold); border-radius:1px; transform: rotate(45deg); opacity:0; animation: sparkle 3.6s ease-in-out infinite; }
+  .store-hero{ flex: 0 0 auto; text-align:center; background: linear-gradient(120deg, rgba(255,183,74,0.14), rgba(255,255,255,0.02)); border: 1px solid var(--border-strong); border-radius: 16px; padding: 18px 30px 20px; position:relative; overflow:hidden; }
+  .store-hero .spark{ position:absolute; width:5px; height:5px; background: var(--gold); border-radius:1px; transform: rotate(45deg); opacity:0; animation: sparkle 3.6s ease-in-out infinite; }
   @keyframes sparkle{ 0%{ opacity:0; transform: translateY(0) rotate(45deg) scale(0.6);} 35%{ opacity:0.9;} 100%{ opacity:0; transform: translateY(-46px) rotate(200deg) scale(1);} }
-  .recog-hero .trophy-big{ width: 58px; height:58px; border-radius: 14px; background: var(--gold-dim); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .recog-hero .trophy-big svg{ width: 28px; height:28px; color: var(--gold); }
-  .recog-hero .lead{ font-family: var(--font-mono); font-size: 13px; color: var(--text-faint); letter-spacing: 0.08em; text-transform: uppercase; }
-  .recog-hero .name{ font-family: var(--font-display); font-size: 46px; line-height: 1; }
+  .store-hero .eyebrow{ font-family: var(--font-mono); font-size: 13px; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; }
+  .store-hero .title-row{ display:flex; align-items:center; justify-content:center; gap: 14px; margin-top: 4px; }
+  .store-hero .title{ font-family: var(--font-display); font-size: 46px; line-height: 1; }
+  .store-hero .pct{ font-family: var(--font-mono); font-size: 17px; font-weight:700; color: var(--gold); background: var(--gold-dim); border: 1px solid rgba(255,183,74,0.35); padding: 5px 14px; border-radius: 999px; }
+  .store-hero .sub{ font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+  .store-hero .bar-track{ max-width: 460px; margin: 12px auto 0; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow:hidden; }
+  .store-hero .bar-fill{ height:100%; border-radius: 999px; background: linear-gradient(90deg, var(--gold-2), var(--gold)); transition: width 1.2s ease; }
 
-  .mvp-grid{ flex: 1 1 0; min-height:0; display:grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
-  .mvp-card{ background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display:flex; flex-direction: column; align-items:center; text-align:center; gap: 8px; justify-content:center; }
-  .mvp-avatar{ width: 54px; height:54px; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size: 24px; }
-  .team-cn .mvp-avatar{ background: var(--cn-soft); color: var(--cn); box-shadow: 0 0 18px rgba(255,122,46,0.35); }
-  .team-ab .mvp-avatar{ background: var(--ab-soft); color: var(--ab); box-shadow: 0 0 18px rgba(47,139,255,0.35); }
-  .team-pv .mvp-avatar{ background: var(--pv-soft); color: var(--pv); box-shadow: 0 0 18px rgba(47,214,127,0.35); }
-  .mvp-card .store-label{ font-size: 13px; color: var(--text-faint); font-family: var(--font-mono); }
-  .mvp-card .mvp-name{ font-weight: 800; font-size: 22px; }
-  .mvp-card .mvp-fact{ font-size: 15px; color: var(--text-dim); }
+  .achieve-grid{ flex: 1 1 0; min-height:0; display:grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+  .achieve-card{ background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; overflow:hidden; display:flex; flex-direction:column; }
+  .achieve-head{ background: linear-gradient(90deg, var(--gold-2), var(--gold)); color:#1a0e02; font-weight:800; font-size: 13px; letter-spacing:.04em; text-transform:uppercase; text-align:center; padding: 10px 12px; }
+  .achieve-body{ padding: 16px 18px; display:flex; flex-direction:column; gap: 10px; flex:1; }
+  .achieve-top{ display:flex; align-items:center; gap: 12px; }
+  .achieve-avatar{ width: 48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size: 20px; background: var(--gold-dim); color: var(--gold); flex-shrink:0; }
+  .achieve-name{ font-weight: 800; font-size: 18px; line-height:1.15; }
+  .achieve-role{ font-size: 12px; color: var(--text-faint); font-family: var(--font-mono); }
+  .achieve-value{ font-family: var(--font-display); font-size: 40px; line-height: 1; }
+  .achieve-stats{ display:grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .achieve-stat{ background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+  .achieve-stat .lbl{ font-size: 10.5px; color: var(--text-faint); font-family: var(--font-mono); }
+  .achieve-stat .val{ font-size: 14px; font-weight: 700; margin-top: 2px; }
+  .achieve-chart{ display:flex; align-items:flex-end; gap: 3px; height: 34px; }
+  .achieve-chart i{ flex:1; display:block; background: linear-gradient(180deg, var(--gold), var(--gold-2)); border-radius: 2px 2px 0 0; opacity:.85; }
 
   /* ---------- Missões ---------- */
   .mission-grid{ flex: 1 1 0; min-height:0; display:grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(2,1fr); gap: 14px; }
@@ -277,7 +280,7 @@
   .mission-card .m-bonus{ position:absolute; top:13px; right:15px; font-family: var(--font-mono); font-size: 12px; color: var(--gold); background: var(--gold-dim); padding: 3px 8px; border-radius: 999px; }
 
   /* ---------- Visão geral do dia ---------- */
-  .kpi-grid{ flex: 0 0 auto; display:grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+  .kpi-grid{ flex: 0 0 auto; display:grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
   .kpi-card{ background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; display:flex; flex-direction:column; gap: 7px; }
   .kpi-icon{ width:32px; height:32px; border-radius:9px; background: var(--gold-dim); color: var(--gold); display:flex; align-items:center; justify-content:center; }
   .kpi-icon svg{ width:16px; height:16px; }
@@ -378,7 +381,6 @@
     <div class="beam beam-2"></div>
     <div class="floor"></div>
     <div class="vignette"></div>
-    <div class="noise"></div>
     <div class="confetti-field" id="confettiField"></div>
   </div>
   <div class="hud-corner tl"></div>
@@ -406,7 +408,7 @@
       </div>
       <div class="brand-text">
         <div class="name">Arena Sansol</div>
-        <div class="tag">Início --/--/---- · Encerramento --/--/----</div>
+        <div class="tag" id="campaignDates">Início --/--/---- · Encerramento --/--/----</div>
       </div>
     </div>
 
@@ -414,11 +416,11 @@
 
     <div class="header-right">
       <div class="spotlight-card">
-        <div class="spotlight-avatar"><div class="circle">JT</div></div>
+        <div class="spotlight-avatar"><div class="circle" id="spotAvatar">JT</div></div>
         <div class="spotlight-info">
           <div class="lbl">🏅 Destaque da campanha</div>
-          <div class="val">Juliana Torres · 96 pts</div>
-          <div class="mini-bar"><i></i></div>
+          <div class="val" id="spotVal">Juliana Torres · 96 pts</div>
+          <div class="mini-bar"><i id="spotBar"></i></div>
         </div>
       </div>
       <div class="live-badge"><span class="dot-live"></span> Atualizado diariamente</div>
@@ -439,86 +441,31 @@
     <div class="scene active" data-title="Placar">
       <div class="scene-head"><span class="scene-eyebrow">Ao vivo</span><span class="scene-title">Placar das Lojas</span></div>
       <div class="scene-body">
-        <div class="podium-stage">
-
-          <div class="podium-col team-cn rank-2">
-            <div class="avatar-ring"><div class="avatar-circle">CN</div></div>
-            <div class="col-name">Cidade Nova</div>
-            <div class="col-rank-label">2º lugar</div>
-            <div class="col-score" data-target="363">0<span class="unit">pts</span></div>
-            <div class="col-mini">86 leads · 42 visitas<br>14 vendas · 7 acima do ticket</div>
-            <div class="pedestal h2"><span class="rank-num">2</span></div>
-          </div>
-
-          <div class="podium-col team-pv rank-1">
-            <span class="crown-float"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18l-1.5-9-4.5 3-3-6-3 6-4.5-3L3 18Z"/></svg></span>
-            <div class="avatar-ring big"><div class="avatar-circle">PV</div></div>
-            <div class="col-name">Parque Verde</div>
-            <div class="col-rank-label leader">Líder geral</div>
-            <div class="col-score" data-target="422">0<span class="unit">pts</span></div>
-            <div class="col-mini">94 leads · 47 visitas<br>16 vendas · 9 acima do ticket</div>
-            <div class="pedestal h1"><span class="rank-num">1</span></div>
-          </div>
-
-          <div class="podium-col team-ab rank-3">
-            <div class="avatar-ring"><div class="avatar-circle">AB</div></div>
-            <div class="col-name">Almirante Barroso</div>
-            <div class="col-rank-label">3º lugar</div>
-            <div class="col-score" data-target="281">0<span class="unit">pts</span></div>
-            <div class="col-mini">71 leads · 35 visitas<br>11 vendas · 5 acima do ticket</div>
-            <div class="pedestal h3"><span class="rank-num">3</span></div>
-          </div>
-
-        </div>
+        <div class="podium-stage" id="storePodium"></div>
         <div class="totals-row">
-          <div class="total-cell"><div class="num" data-target="251">0</div><div class="label">Leads qualificados</div></div>
-          <div class="total-cell"><div class="num" data-target="124">0</div><div class="label">Visitas realizadas</div></div>
-          <div class="total-cell"><div class="num" data-target="41">0</div><div class="label">Fechamentos</div></div>
-          <div class="total-cell"><div class="num" data-target="3">0</div><div class="label">Cancelamentos</div></div>
+          <div class="total-cell"><div class="num" id="totLeads">0</div><div class="label">Leads qualificados</div></div>
+          <div class="total-cell"><div class="num" id="totVisits">0</div><div class="label">Visitas realizadas</div></div>
+          <div class="total-cell"><div class="num" id="totSales">0</div><div class="label">Fechamentos</div></div>
+          <div class="total-cell"><div class="num" id="totCancel">0</div><div class="label">Cancelamentos</div></div>
         </div>
       </div>
     </div>
 
     <!-- SCENE 2 — Ranking de vendedores -->
     <div class="scene" data-title="Vendedores">
-      <div class="scene-head"><span class="scene-eyebrow">Desempenho individual</span><span class="scene-title">Ranking de Vendedores</span></div>
+      <div class="scene-head"><span class="scene-eyebrow">Faturamento 60% · Qtd. vendas 40%</span><span class="scene-title">Ranking de Vendedores</span></div>
       <div class="scene-body">
-        <div class="podium-stage">
+        <div class="podium-stage" id="sellerPodium"></div>
+        <div class="seller-list" id="sellerList"></div>
+      </div>
+    </div>
 
-          <div class="podium-col silver">
-            <div class="avatar-ring"><div class="avatar-circle">AB</div></div>
-            <div class="col-name">Ana Beatriz</div>
-            <div class="col-rank-label">Cidade Nova · 2º lugar</div>
-            <div class="col-score" data-target="89">0<span class="unit">pts</span></div>
-            <div class="col-mini">14 vendas fechadas</div>
-            <div class="pedestal h2"><span class="rank-num">2</span></div>
-          </div>
-
-          <div class="podium-col gold">
-            <span class="crown-float"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18l-1.5-9-4.5 3-3-6-3 6-4.5-3L3 18Z"/></svg></span>
-            <div class="avatar-ring big"><div class="avatar-circle">JT</div></div>
-            <div class="col-name">Juliana Torres</div>
-            <div class="col-rank-label leader">Parque Verde · 1º lugar</div>
-            <div class="col-score" data-target="96">0<span class="unit">pts</span></div>
-            <div class="col-mini">16 vendas fechadas</div>
-            <div class="pedestal h1"><span class="rank-num">1</span></div>
-          </div>
-
-          <div class="podium-col bronze">
-            <div class="avatar-ring"><div class="avatar-circle">RS</div></div>
-            <div class="col-name">Rafael Souza</div>
-            <div class="col-rank-label">Almirante Barroso · 3º lugar</div>
-            <div class="col-score" data-target="74">0<span class="unit">pts</span></div>
-            <div class="col-mini">11 vendas fechadas</div>
-            <div class="pedestal h3"><span class="rank-num">3</span></div>
-          </div>
-
-        </div>
-        <div class="seller-list">
-          <div class="seller-row"><span class="pos">4º</span><span class="who"><span class="dot" style="background:var(--pv)"></span><b>Marcos Lima</b> · Parque Verde</span><span class="pts">61 pts</span></div>
-          <div class="seller-row"><span class="pos">5º</span><span class="who"><span class="dot" style="background:var(--cn)"></span><b>Camila Rocha</b> · Cidade Nova</span><span class="pts">58 pts</span></div>
-          <div class="seller-row"><span class="pos">6º</span><span class="who"><span class="dot" style="background:var(--ab)"></span><b>Bruno Alves</b> · Almirante Barroso</span><span class="pts">52 pts</span></div>
-        </div>
+    <!-- SCENE 2.5 — Ranking de pré-vendedores -->
+    <div class="scene" data-title="Pré-vendedores">
+      <div class="scene-head"><span class="scene-eyebrow">Visitas 60% · Qtd. vendas 40%</span><span class="scene-title">Ranking de Pré-vendedores</span></div>
+      <div class="scene-body">
+        <div class="podium-stage" id="preSellerPodium"></div>
+        <div class="seller-list" id="preSellerList"></div>
       </div>
     </div>
 
@@ -526,20 +473,64 @@
     <div class="scene" data-title="Reconhecimento">
       <div class="scene-head"><span class="scene-eyebrow">Encerramento do dia</span><span class="scene-title">Reconhecimento do Dia</span></div>
       <div class="scene-body">
-        <div class="recog-hero">
+        <div class="store-hero">
           <span class="spark" style="top:18%; left:22%; animation-delay:0s;"></span>
           <span class="spark" style="top:65%; left:30%; animation-delay:0.8s;"></span>
           <span class="spark" style="top:25%; left:68%; animation-delay:1.6s;"></span>
           <span class="spark" style="top:70%; left:74%; animation-delay:2.3s;"></span>
           <span class="spark" style="top:40%; left:12%; animation-delay:1.1s;"></span>
           <span class="spark" style="top:45%; left:88%; animation-delay:2.9s;"></span>
-          <div class="trophy-big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div>
-          <div><div class="lead">🏆 Loja líder do dia</div><div class="name">Cidade Nova</div></div>
+          <div class="eyebrow">🏆 Melhor loja do dia · maior faturamento</div>
+          <div class="title-row">
+            <span class="title" id="dayLeaderName">Cidade Nova</span>
+            <span class="pct" id="storeAchievePct">120%</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" id="storeAchieveBar" style="width:0%"></div></div>
         </div>
-        <div class="mvp-grid">
-          <div class="mvp-card team-cn"><div class="mvp-avatar">AB</div><div class="store-label">MVP · Cidade Nova</div><div class="mvp-name">Ana Beatriz</div><div class="mvp-fact">4 vendas fechadas hoje</div></div>
-          <div class="mvp-card team-ab"><div class="mvp-avatar">RS</div><div class="store-label">MVP · Almirante Barroso</div><div class="mvp-name">Rafael Souza</div><div class="mvp-fact">3 vendas fechadas hoje</div></div>
-          <div class="mvp-card team-pv"><div class="mvp-avatar">JT</div><div class="store-label">MVP · Parque Verde</div><div class="mvp-name">Juliana Torres</div><div class="mvp-fact">Melhor ticket médio do dia</div></div>
+
+        <div class="achieve-grid">
+          <div class="achieve-card">
+            <div class="achieve-head">Melhor vendedor do dia</div>
+            <div class="achieve-body">
+              <div class="achieve-top">
+                <div class="achieve-avatar" id="bsAvatar">AB</div>
+                <div><div class="achieve-name" id="bsName">Ana Beatriz</div><div class="achieve-role">Vendas total</div></div>
+              </div>
+              <div class="achieve-value" id="bsValue">R$ 4.520,50</div>
+              <div class="achieve-stats">
+                <div class="achieve-stat"><div class="lbl">Vendas hoje</div><div class="val" id="bsSales">4</div></div>
+                <div class="achieve-stat"><div class="lbl">Loja</div><div class="val" id="bsStore">Cidade Nova</div></div>
+              </div>
+                          </div>
+          </div>
+          <div class="achieve-card">
+            <div class="achieve-head">Melhor pré-vendedor do dia</div>
+            <div class="achieve-body">
+              <div class="achieve-top">
+                <div class="achieve-avatar" id="bpAvatar">LN</div>
+                <div><div class="achieve-name" id="bpName">Larissa Nunes</div><div class="achieve-role">Leads qualificados</div></div>
+              </div>
+              <div class="achieve-value" id="bpValue">38 leads</div>
+              <div class="achieve-stats">
+                <div class="achieve-stat"><div class="lbl">Conversão</div><div class="val" id="bpConv">41,77%</div></div>
+                <div class="achieve-stat"><div class="lbl">Loja</div><div class="val" id="bpStore">Cidade Nova</div></div>
+              </div>
+                          </div>
+          </div>
+          <div class="achieve-card">
+            <div class="achieve-head">Maior ticket médio</div>
+            <div class="achieve-body">
+              <div class="achieve-top">
+                <div class="achieve-avatar" id="btAvatar">JT</div>
+                <div><div class="achieve-name" id="btName">Juliana Torres</div><div class="achieve-role">Valor ticket médio</div></div>
+              </div>
+              <div class="achieve-value" id="btValue">R$ 1.875,00</div>
+              <div class="achieve-stats">
+                <div class="achieve-stat"><div class="lbl">Transações</div><div class="val" id="btTrans">23</div></div>
+                <div class="achieve-stat"><div class="lbl">Loja</div><div class="val" id="btStore">Parque Verde</div></div>
+              </div>
+                          </div>
+          </div>
         </div>
       </div>
     </div>
@@ -553,78 +544,62 @@
           <div class="kpi-card">
             <div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6M17.5 5.5l1-1"/></svg></div></div>
             <div class="kpi-label">Primeira venda do dia</div>
-            <div class="kpi-value">08:14</div>
-            <div class="kpi-highlight"><div class="mini-avatar">AB</div>R$ 1.540 · Ana Beatriz</div>
+            <div class="kpi-value" id="kpiFirstSaleVal">08:14</div>
+            <div class="kpi-highlight"><div class="mini-avatar" id="kpiFirstSaleAv">AB</div><span id="kpiFirstSaleTxt">R$ 1.540 · Ana Beatriz</span></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-5-2V6l5 2m0 12 6-2m-6 2V8m6 10 5 2V8l-5-2m0 12V6m0 0-6-2"/></svg></div></div>
             <div class="kpi-label">Mais visitas realizadas</div>
-            <div class="kpi-value">24</div>
-            <div class="kpi-highlight"><div class="mini-avatar">RS</div>Destaque: Rafael Souza</div>
+            <div class="kpi-value" id="kpiVisitsVal">24</div>
+            <div class="kpi-highlight"><div class="mini-avatar" id="kpiVisitsAv">RS</div><span id="kpiVisitsTxt">Destaque: Rafael Souza</span></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.5.5.9 1.2 1 2h6c.1-.8.5-1.5 1-2A6 6 0 0 0 12 3Z"/></svg></div></div>
             <div class="kpi-label">Mais leads qualificados</div>
-            <div class="kpi-value">18</div>
-            <div class="kpi-highlight"><div class="mini-avatar">ML</div>Destaque: Marcos Lima</div>
+            <div class="kpi-value" id="kpiLeadsVal">18</div>
+            <div class="kpi-highlight"><div class="mini-avatar" id="kpiLeadsAv">ML</div><span id="kpiLeadsTxt">Destaque: Marcos Lima</span></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 19 5M7.5 9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM16.5 20a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg></div></div>
             <div class="kpi-label">Melhor taxa de conversão</div>
-            <div class="kpi-value">19,5<small>%</small></div>
-            <div class="kpi-highlight"><div class="mini-avatar">JT</div>Destaque: Juliana Torres</div>
+            <div class="kpi-value" id="kpiConvVal">19,5<small>%</small></div>
+            <div class="kpi-highlight"><div class="mini-avatar" id="kpiConvAv">JT</div><span id="kpiConvTxt">Destaque: Juliana Torres</span></div>
           </div>
-        </div>
-
-        <div class="goal-grid">
-          <div class="goal-card">
-            <h4>Meta diária de fechamentos</h4>
-            <div class="bar-compare">
-              <div class="row"><span class="lbl">Realizado</span><div class="track"><div class="fill done" style="width:83%"></div></div><span class="val">15 fechamentos</span></div>
-              <div class="row"><span class="lbl">Meta</span><div class="track"><div class="fill target" style="width:100%"></div></div><span class="val">18 fechamentos</span></div>
-            </div>
-            <div class="goal-progress-text">Progresso: 83,3%</div>
+          <div class="kpi-card">
+            <div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4"/></svg></div></div>
+            <div class="kpi-label">Maior número de fechamentos</div>
+            <div class="kpi-value" id="kpiClosingsVal">7</div>
+            <div class="kpi-highlight"><div class="mini-avatar" id="kpiClosingsAv">JT</div><span id="kpiClosingsTxt">Destaque: Juliana Torres</span></div>
           </div>
-          <div class="goal-card">
-            <h4>Meta diária de faturamento</h4>
-            <div class="gauge-wrap">
-              <div class="gauge" style="--pct:81"><div class="gauge-inner"><div class="pct">81%</div><div class="amt">de R$ 35 mil</div></div></div>
-              <div style="flex:1">
-                <div class="goal-progress-text" style="text-align:left; margin-top:0;">Faturamento total<br><span style="font-family:var(--font-display); font-size:32px; color:var(--text);">R$ 28.500</span></div>
-                <svg class="trend-chart" viewBox="0 0 300 100" preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" class="trend-stop-a"/>
-                      <stop offset="100%" class="trend-stop-b"/>
-                    </linearGradient>
-                  </defs>
-                  <path class="trend-fill" d="M0,72 C 30,66 45,60 75,64 C 105,68 120,50 150,44 C 180,38 195,34 225,22 C 255,10 270,16 300,8 L300,100 L0,100 Z"/>
-                  <path class="trend-line" d="M0,72 C 30,66 45,60 75,64 C 105,68 120,50 150,44 C 180,38 195,34 225,22 C 255,10 270,16 300,8"/>
-                  <circle class="trend-dot" cx="300" cy="8" r="4.5"/>
-                </svg>
-                <div class="trend-labels"><span>-6 dias</span><span>Hoje</span></div>
-              </div>
-            </div>
+          <div class="kpi-card">
+            <div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg></div></div>
+            <div class="kpi-label">Maior faturamento</div>
+            <div class="kpi-value" id="kpiRevenueVal">R$ 12.400</div>
+            <div class="kpi-highlight"><div class="mini-avatar" id="kpiRevenueAv">JT</div><span id="kpiRevenueTxt">Destaque: Juliana Torres</span></div>
           </div>
         </div>
 
         <div class="detail-grid">
           <div class="activity-card">
             <h4>Atividades do dia</h4>
-            <div class="activity-row"><span>Visita</span><b>3</b></div>
-            <div class="activity-row"><span>Reunião</span><b>3</b></div>
-            <div class="activity-row"><span>Lead gerado</span><b>4</b></div>
-            <div class="activity-row"><span>Venda</span><b>5</b></div>
-            <div class="activity-row"><span>E-mail</span><b>1</b></div>
+            <div id="activityList">
+              <div class="activity-row"><span>Visita</span><b>3</b></div>
+              <div class="activity-row"><span>Reunião</span><b>3</b></div>
+              <div class="activity-row"><span>Lead gerado</span><b>4</b></div>
+              <div class="activity-row"><span>Venda</span><b>5</b></div>
+              <div class="activity-row"><span>E-mail</span><b>1</b></div>
+            </div>
           </div>
           <div class="sales-card">
             <h4>Vendas recentes do dia</h4>
             <table class="sales-table">
               <tr><th>ID</th><th>Cliente</th><th>Valor</th><th>Status</th></tr>
+              <tbody id="salesRows">
               <tr><td>10231</td><td>Fernanda Alves</td><td>R$ 4.200</td><td><span class="status-pill ok">Fechado</span></td></tr>
               <tr><td>10232</td><td>Marcos Lima</td><td>R$ 2.850</td><td><span class="status-pill ok">Fechado</span></td></tr>
               <tr><td>10233</td><td>Camila Rocha</td><td>R$ 1.980</td><td><span class="status-pill pending">Em análise</span></td></tr>
               <tr><td>10234</td><td>Bruno Alves</td><td>R$ 3.400</td><td><span class="status-pill ok">Fechado</span></td></tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -704,7 +679,7 @@
   if(!reduceMotion){
     var confettiColors = ['#ff7a2e', '#2f8bff', '#2fd67f', '#ffb74a'];
     var field = document.getElementById('confettiField');
-    for(var i = 0; i < 16; i++){
+    for(var i = 0; i < 8; i++){
       var p = document.createElement('span');
       p.className = 'confetti';
       p.style.left = (Math.random() * 100) + '%';
@@ -799,6 +774,262 @@
     if(e.key === 'ArrowRight') goTo(current + 1, true);
     if(e.key === 'ArrowLeft') goTo(current - 1, true);
   });
+
+  // ============ LIVE DATA (Supabase) ============
+  // Preencha com os dados do seu projeto: Supabase → Settings → API
+  // Use a chave "anon public" — nunca a "service_role" (essa fica só no servidor).
+  var SUPABASE_URL = "";       // ex: "https://xxxxxxxx.supabase.co"
+  var SUPABASE_ANON_KEY = "";  // ex: "eyJhbGciOi..."
+  var REFRESH_MS = 30000;
+
+  var defaultState = {
+    campaign: { start: '--/--/----', end: '--/--/----' },
+    stores: [
+      { key:'cn', name:'Cidade Nova', points:363, leads:86, visits:42, sales:14, ticketAbove:7 },
+      { key:'pv', name:'Parque Verde', points:422, leads:94, visits:47, sales:16, ticketAbove:9 },
+      { key:'ab', name:'Almirante Barroso', points:281, leads:71, visits:35, sales:11, ticketAbove:5 }
+    ],
+    totals: { leads:251, visits:124, sales:41, cancellations:3 },
+    // Ranking de vendedores: score = 60% faturamento + 40% qtd. de vendas (normalizado pelo maior de cada)
+    sellers: [
+      { name:'Juliana Torres', store:'pv', sales:16, revenue:62000 },
+      { name:'Ana Beatriz', store:'cn', sales:14, revenue:54000 },
+      { name:'Rafael Souza', store:'ab', sales:11, revenue:41000 },
+      { name:'Marcos Lima', store:'pv', sales:9, revenue:34000 },
+      { name:'Camila Rocha', store:'cn', sales:8, revenue:30000 },
+      { name:'Bruno Alves', store:'ab', sales:7, revenue:26000 }
+    ],
+    // Ranking de pré-vendedores: score = 60% visitas + 40% qtd. de vendas (normalizado pelo maior de cada)
+    preSellers: [
+      { name:'Larissa Nunes', store:'cn', visits:52, sales:11 },
+      { name:'Diego Martins', store:'pv', visits:58, sales:9 },
+      { name:'Thiago Alves', store:'ab', visits:47, sales:7 },
+      { name:'Renata Dias', store:'pv', visits:44, sales:6 },
+      { name:'Pedro Farias', store:'cn', visits:39, sales:5 },
+      { name:'Isabela Rocha', store:'ab', visits:35, sales:4 }
+    ],
+    daily: {
+      topRevenueStore: 'cn',
+      storeAchievePct: 120,
+      bestSellerToday: { name:'Ana Beatriz', store:'cn', revenueToday:4520.50, salesToday:4, trend:[2100,1800,2600,3100,3800,4200,4520] },
+      bestPreSellerToday: { name:'Larissa Nunes', store:'cn', leadsToday:38, conversionRate:41.77, trend:[18,22,25,30,33,35,38] },
+      bestAvgTicketSeller: { name:'Juliana Torres', store:'pv', avgTicket:1875.00, transactions:23, trend:[1200,1350,1500,1600,1700,1800,1875] },
+      firstSale: { time:'08:14', value:'R$ 1.540', seller:'Ana Beatriz' },
+      mostVisits: { value:24, seller:'Rafael Souza' },
+      mostLeads: { value:18, seller:'Marcos Lima' },
+      bestConversion: { value:'19,5%', seller:'Juliana Torres' },
+      mostClosings: { value:7, seller:'Juliana Torres' },
+      mostRevenue: { value:'R$ 12.400', seller:'Juliana Torres' },
+      activities: { 'Visita':3, 'Reunião':3, 'Lead gerado':4, 'Venda':5, 'E-mail':1 },
+      recentSales: [
+        { id:'10231', client:'Fernanda Alves', value:'R$ 4.200', status:'ok' },
+        { id:'10232', client:'Marcos Lima', value:'R$ 2.850', status:'ok' },
+        { id:'10233', client:'Camila Rocha', value:'R$ 1.980', status:'pending' },
+        { id:'10234', client:'Bruno Alves', value:'R$ 3.400', status:'ok' }
+      ]
+    }
+  };
+
+  function initials(name){ return (name||'').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase(); }
+  function fmtInt(n){ return Number(n||0).toLocaleString('pt-BR'); }
+  function fmtMoney(n){ return 'R$ ' + Number(n||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+  function renderMiniChart(id, trend){
+    var el = document.getElementById(id); if(!el || !trend || !trend.length) return;
+    var max = Math.max.apply(null, trend) || 1;
+    el.innerHTML = trend.map(function(v){ return '<i style="height:'+Math.max(6, Math.round((v/max)*100))+'%"></i>'; }).join('');
+  }
+  function cap(k){ return k.charAt(0).toUpperCase() + k.slice(1); }
+
+  // Combina duas métricas em um score 0-100, cada uma normalizada pelo maior valor do grupo
+  function withScore(list, keyA, keyB, weightA, weightB){
+    var maxA = Math.max.apply(null, list.map(function(x){ return x[keyA] || 0; })) || 1;
+    var maxB = Math.max.apply(null, list.map(function(x){ return x[keyB] || 0; })) || 1;
+    return list.map(function(x){
+      var score = weightA * ((x[keyA]||0) / maxA) + weightB * ((x[keyB]||0) / maxB);
+      return Object.assign({}, x, { score: Math.round(score * 100) });
+    });
+  }
+
+  function renderHeader(state){
+    document.getElementById('campaignDates').textContent = 'Início ' + state.campaign.start + ' · Encerramento ' + state.campaign.end;
+    var scored = withScore(state.sellers, 'revenue', 'sales', 0.6, 0.4);
+    var top = scored.slice().sort(function(a,b){ return b.score - a.score; })[0];
+    if(top){
+      var maxScore = Math.max.apply(null, scored.map(function(s){ return s.score; }));
+      document.getElementById('spotAvatar').textContent = initials(top.name);
+      document.getElementById('spotVal').textContent = top.name + ' · ' + fmtInt(top.score) + ' pts';
+      document.getElementById('spotBar').style.width = Math.round((top.score / maxScore) * 100) + '%';
+    }
+  }
+
+  function renderStorePodium(stores){
+    var sorted = stores.slice().sort(function(a,b){ return b.points - a.points; });
+    var order = [1,0,2], heightCls = ['h1','h2','h3'];
+    document.getElementById('storePodium').innerHTML = order.map(function(sortedIdx){
+      var s = sorted[sortedIdx], rank = sortedIdx + 1;
+      var cls = 'team-' + (s.key || 'cn');
+      var crown = rank === 1 ? '<span class="crown-float"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18l-1.5-9-4.5 3-3-6-3 6-4.5-3L3 18Z"/></svg></span>' : '';
+      var rankLabel = rank === 1 ? '<div class="col-rank-label leader">Líder geral</div>' : '<div class="col-rank-label">'+rank+'º lugar</div>';
+      return '<div class="podium-col '+cls+' rank-'+rank+'">'+crown+
+        '<div class="avatar-ring'+(rank===1?' big':'')+'"><div class="avatar-circle">'+initials(s.name)+'</div></div>'+
+        '<div class="col-name">'+s.name+'</div>'+rankLabel+
+        '<div class="col-score" data-target="'+s.points+'">0<span class="unit">pts</span></div>'+
+        '<div class="col-mini">'+fmtInt(s.leads)+' leads · '+fmtInt(s.visits)+' visitas<br>'+fmtInt(s.sales)+' vendas · '+fmtInt(s.ticketAbove)+' acima do ticket</div>'+
+        '<div class="pedestal '+heightCls[rank-1]+'"><span class="rank-num">'+rank+'</span></div></div>';
+    }).join('');
+  }
+
+  function renderTotals(t){
+    ['totLeads','totVisits','totSales','totCancel'].forEach(function(id){ document.getElementById(id).textContent = '0'; });
+    document.getElementById('totLeads').setAttribute('data-target', t.leads);
+    document.getElementById('totVisits').setAttribute('data-target', t.visits);
+    document.getElementById('totSales').setAttribute('data-target', t.sales);
+    document.getElementById('totCancel').setAttribute('data-target', t.cancellations);
+  }
+
+  function renderSellerPodium(state){
+    var storeNameMap = {}; state.stores.forEach(function(s){ storeNameMap[s.key] = s.name; });
+    var scored = withScore(state.sellers, 'revenue', 'sales', 0.6, 0.4);
+    var sorted = scored.slice().sort(function(a,b){ return b.score - a.score; });
+    var top3 = sorted.slice(0,3), order = [1,0,2], medalCls = ['gold','silver','bronze'], heightCls = ['h1','h2','h3'];
+    document.getElementById('sellerPodium').innerHTML = order.map(function(idx){
+      var s = top3[idx]; if(!s) return '';
+      var rank = idx + 1, storeName = storeNameMap[s.store] || s.store;
+      var crown = rank === 1 ? '<span class="crown-float"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18l-1.5-9-4.5 3-3-6-3 6-4.5-3L3 18Z"/></svg></span>' : '';
+      var rankLabel = '<div class="col-rank-label'+(rank===1?' leader':'')+'">'+storeName+' · '+rank+'º lugar</div>';
+      return '<div class="podium-col '+medalCls[rank-1]+'">'+crown+
+        '<div class="avatar-ring'+(rank===1?' big':'')+'"><div class="avatar-circle">'+initials(s.name)+'</div></div>'+
+        '<div class="col-name">'+s.name+'</div>'+rankLabel+
+        '<div class="col-score" data-target="'+s.score+'">0<span class="unit">pts</span></div>'+
+        '<div class="col-mini">'+fmtMoney(s.revenue)+' · '+fmtInt(s.sales)+' vendas</div>'+
+        '<div class="pedestal '+heightCls[rank-1]+'"><span class="rank-num">'+rank+'</span></div></div>';
+    }).join('');
+    document.getElementById('sellerList').innerHTML = sorted.slice(3).map(function(s, i){
+      var storeName = storeNameMap[s.store] || s.store;
+      return '<div class="seller-row"><span class="pos">'+(i+4)+'º</span><span class="who"><span class="dot" style="background:var(--'+(s.store||'cn')+')"></span><b>'+s.name+'</b> · '+storeName+'</span><span class="pts">'+fmtInt(s.score)+' pts</span></div>';
+    }).join('');
+  }
+
+  function renderPreSellerPodium(state){
+    var storeNameMap = {}; state.stores.forEach(function(s){ storeNameMap[s.key] = s.name; });
+    var list = state.preSellers || [];
+    var scored = withScore(list, 'visits', 'sales', 0.6, 0.4);
+    var sorted = scored.slice().sort(function(a,b){ return b.score - a.score; });
+    var top3 = sorted.slice(0,3), order = [1,0,2], medalCls = ['gold','silver','bronze'], heightCls = ['h1','h2','h3'];
+    document.getElementById('preSellerPodium').innerHTML = order.map(function(idx){
+      var s = top3[idx]; if(!s) return '';
+      var rank = idx + 1, storeName = storeNameMap[s.store] || s.store;
+      var crown = rank === 1 ? '<span class="crown-float"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18l-1.5-9-4.5 3-3-6-3 6-4.5-3L3 18Z"/></svg></span>' : '';
+      var rankLabel = '<div class="col-rank-label'+(rank===1?' leader':'')+'">'+storeName+' · '+rank+'º lugar</div>';
+      return '<div class="podium-col '+medalCls[rank-1]+'">'+crown+
+        '<div class="avatar-ring'+(rank===1?' big':'')+'"><div class="avatar-circle">'+initials(s.name)+'</div></div>'+
+        '<div class="col-name">'+s.name+'</div>'+rankLabel+
+        '<div class="col-score" data-target="'+s.score+'">0<span class="unit">pts</span></div>'+
+        '<div class="col-mini">'+fmtInt(s.visits)+' visitas · '+fmtInt(s.sales)+' vendas</div>'+
+        '<div class="pedestal '+heightCls[rank-1]+'"><span class="rank-num">'+rank+'</span></div></div>';
+    }).join('');
+    document.getElementById('preSellerList').innerHTML = sorted.slice(3).map(function(s, i){
+      var storeName = storeNameMap[s.store] || s.store;
+      return '<div class="seller-row"><span class="pos">'+(i+4)+'º</span><span class="who"><span class="dot" style="background:var(--'+(s.store||'cn')+')"></span><b>'+s.name+'</b> · '+storeName+'</span><span class="pts">'+fmtInt(s.score)+' pts</span></div>';
+    }).join('');
+  }
+
+  function renderDaily(state){
+    var d = state.daily;
+    var storeNameMap = {}; state.stores.forEach(function(s){ storeNameMap[s.key] = s.name; });
+    document.getElementById('dayLeaderName').textContent = storeNameMap[d.topRevenueStore] || d.topRevenueStore;
+    document.getElementById('storeAchievePct').textContent = d.storeAchievePct + '%';
+    document.getElementById('storeAchieveBar').style.width = Math.min(100, d.storeAchievePct) + '%';
+
+    var bs = d.bestSellerToday;
+    document.getElementById('bsAvatar').textContent = initials(bs.name);
+    document.getElementById('bsName').textContent = bs.name;
+    document.getElementById('bsValue').textContent = fmtMoney(bs.revenueToday);
+    document.getElementById('bsSales').textContent = fmtInt(bs.salesToday);
+    document.getElementById('bsStore').textContent = storeNameMap[bs.store] || bs.store;
+
+    var bp = d.bestPreSellerToday;
+    document.getElementById('bpAvatar').textContent = initials(bp.name);
+    document.getElementById('bpName').textContent = bp.name;
+    document.getElementById('bpValue').textContent = fmtInt(bp.leadsToday) + ' leads';
+    document.getElementById('bpConv').textContent = String(bp.conversionRate).replace('.', ',') + '%';
+    document.getElementById('bpStore').textContent = storeNameMap[bp.store] || bp.store;
+
+    var bt = d.bestAvgTicketSeller;
+    document.getElementById('btAvatar').textContent = initials(bt.name);
+    document.getElementById('btName').textContent = bt.name;
+    document.getElementById('btValue').textContent = fmtMoney(bt.avgTicket);
+    document.getElementById('btTrans').textContent = fmtInt(bt.transactions);
+    document.getElementById('btStore').textContent = storeNameMap[bt.store] || bt.store;
+
+    document.getElementById('kpiFirstSaleVal').textContent = d.firstSale.time;
+    document.getElementById('kpiFirstSaleAv').textContent = initials(d.firstSale.seller);
+    document.getElementById('kpiFirstSaleTxt').textContent = d.firstSale.value + ' · ' + d.firstSale.seller;
+    document.getElementById('kpiVisitsVal').textContent = d.mostVisits.value;
+    document.getElementById('kpiVisitsAv').textContent = initials(d.mostVisits.seller);
+    document.getElementById('kpiVisitsTxt').textContent = 'Destaque: ' + d.mostVisits.seller;
+    document.getElementById('kpiLeadsVal').textContent = d.mostLeads.value;
+    document.getElementById('kpiLeadsAv').textContent = initials(d.mostLeads.seller);
+    document.getElementById('kpiLeadsTxt').textContent = 'Destaque: ' + d.mostLeads.seller;
+    document.getElementById('kpiConvVal').innerHTML = String(d.bestConversion.value).replace('%','') + '<small>%</small>';
+    document.getElementById('kpiConvAv').textContent = initials(d.bestConversion.seller);
+    document.getElementById('kpiConvTxt').textContent = 'Destaque: ' + d.bestConversion.seller;
+    document.getElementById('kpiClosingsVal').textContent = d.mostClosings.value;
+    document.getElementById('kpiClosingsAv').textContent = initials(d.mostClosings.seller);
+    document.getElementById('kpiClosingsTxt').textContent = 'Destaque: ' + d.mostClosings.seller;
+    document.getElementById('kpiRevenueVal').textContent = d.mostRevenue.value;
+    document.getElementById('kpiRevenueAv').textContent = initials(d.mostRevenue.seller);
+    document.getElementById('kpiRevenueTxt').textContent = 'Destaque: ' + d.mostRevenue.seller;
+
+    document.getElementById('activityList').innerHTML = Object.keys(d.activities).map(function(k){
+      return '<div class="activity-row"><span>'+k+'</span><b>'+fmtInt(d.activities[k])+'</b></div>';
+    }).join('');
+    document.getElementById('salesRows').innerHTML = d.recentSales.map(function(s){
+      var ok = s.status === 'ok';
+      return '<tr><td>'+s.id+'</td><td>'+s.client+'</td><td>'+s.value+'</td><td><span class="status-pill '+(ok?'ok':'pending')+'">'+(ok?'Fechado':'Em análise')+'</span></td></tr>';
+    }).join('');
+  }
+
+  function renderAll(state){
+    renderHeader(state);
+    renderStorePodium(state.stores);
+    renderTotals(state.totals);
+    renderSellerPodium(state);
+    renderPreSellerPodium(state);
+    renderDaily(state);
+  }
+
+  async function fetchLiveState(){
+    if(!SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
+    try{
+      var res = await fetch(SUPABASE_URL + '/rest/v1/dashboard_state?id=eq.1&select=*', {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY }
+      });
+      if(!res.ok) return null;
+      var rows = await res.json();
+      if(!rows || !rows[0]) return null;
+      var row = rows[0];
+      return {
+        campaign: row.campaign || defaultState.campaign,
+        stores: row.stores || defaultState.stores,
+        totals: row.totals || defaultState.totals,
+        sellers: row.sellers || defaultState.sellers,
+        preSellers: row.preSellers || defaultState.preSellers,
+        daily: row.daily || defaultState.daily
+      };
+    } catch(e){ console.warn('Supabase fetch failed, mantendo dados atuais', e); return null; }
+  }
+
+  var currentState = defaultState;
+  renderAll(currentState);
+
+  async function refreshData(){
+    var live = await fetchLiveState();
+    if(live){ currentState = live; renderAll(currentState); playNumbers(scenes[current]); }
+  }
+  refreshData();
+  setInterval(refreshData, REFRESH_MS);
+  // ============ /LIVE DATA ============
 
   playNumbers(scenes[0]);
   restartProgress();
