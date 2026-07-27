@@ -507,11 +507,11 @@
             <div class="achieve-body">
               <div class="achieve-top">
                 <div class="achieve-avatar" id="bpAvatar">LN</div>
-                <div><div class="achieve-name" id="bpName">Larissa Nunes</div><div class="achieve-role">Leads qualificados</div></div>
+                <div><div class="achieve-name" id="bpName">Larissa Nunes</div><div class="achieve-role">Visitas realizadas</div></div>
               </div>
-              <div class="achieve-value" id="bpValue">38 leads</div>
+              <div class="achieve-value" id="bpValue">38 visitas</div>
               <div class="achieve-stats">
-                <div class="achieve-stat"><div class="lbl">Conversão</div><div class="val" id="bpConv">41,77%</div></div>
+                <div class="achieve-stat"><div class="lbl">Vendas</div><div class="val" id="bpSales">11</div></div>
                 <div class="achieve-stat"><div class="lbl">Loja</div><div class="val" id="bpStore">Cidade Nova</div></div>
               </div>
                           </div>
@@ -777,8 +777,8 @@
   // ============ LIVE DATA (Supabase) ============
   // Preencha com os dados do seu projeto: Supabase → Settings → API
   // Use a chave "anon public" — nunca a "service_role" (essa fica só no servidor).
-  var SUPABASE_URL = "";       // ex: "https://xxxxxxxx.supabase.co"
-  var SUPABASE_ANON_KEY = "";  // ex: "eyJhbGciOi..."
+  var SUPABASE_URL = "https://zfxuwqbbzurskikrdyys.supabase.co";
+  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmeHV3cWJienVyc2tpa3JkeXlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwODg0NTAsImV4cCI6MjA5OTY2NDQ1MH0.XMcvA-hCTqRYJuKKEr3M8rUEPP-0DeqzY2naJhAjUiY";
   var REFRESH_MS = 30000;
 
   var defaultState = {
@@ -812,20 +812,20 @@
       storeAchievePct: 120,
       storeAchieveValue: 42300,
       bestSellerToday: { name:'Ana Beatriz', store:'cn', revenueToday:4520.50, salesToday:4, trend:[2100,1800,2600,3100,3800,4200,4520] },
-      bestPreSellerToday: { name:'Larissa Nunes', store:'cn', leadsToday:38, conversionRate:41.77, trend:[18,22,25,30,33,35,38] },
+      bestPreSellerToday: { name:'Larissa Nunes', store:'cn', visitsToday:38, salesToday:11 },
       bestAvgTicketSeller: { name:'Juliana Torres', store:'pv', avgTicket:1875.00, transactions:23, trend:[1200,1350,1500,1600,1700,1800,1875] },
-      firstSale: { time:'08:14', value:'R$ 1.540', seller:'Ana Beatriz' },
+      firstSale: { time:'08:14', value:1540, seller:'Ana Beatriz' },
       mostVisits: { value:24, seller:'Rafael Souza' },
       mostLeads: { value:18, seller:'Marcos Lima' },
       bestConversion: { value:'19,5%', seller:'Juliana Torres' },
       mostClosings: { value:7, seller:'Juliana Torres' },
-      mostRevenue: { value:'R$ 12.400', seller:'Juliana Torres' },
+      mostRevenue: { value:12400, seller:'Juliana Torres' },
       activities: { 'Visita':3, 'Reunião':3, 'Lead gerado':4, 'Venda':5, 'E-mail':1 },
       recentSales: [
-        { id:'10231', client:'Fernanda Alves', value:'R$ 4.200', status:'ok' },
-        { id:'10232', client:'Marcos Lima', value:'R$ 2.850', status:'ok' },
-        { id:'10233', client:'Camila Rocha', value:'R$ 1.980', status:'pending' },
-        { id:'10234', client:'Bruno Alves', value:'R$ 3.400', status:'ok' }
+        { id:'10231', client:'Fernanda Alves', value:4200, status:'ok' },
+        { id:'10232', client:'Marcos Lima', value:2850, status:'ok' },
+        { id:'10233', client:'Camila Rocha', value:1980, status:'pending' },
+        { id:'10234', client:'Bruno Alves', value:3400, status:'ok' }
       ]
     }
   };
@@ -950,8 +950,8 @@
     var bp = d.bestPreSellerToday;
     document.getElementById('bpAvatar').textContent = initials(bp.name);
     document.getElementById('bpName').textContent = bp.name;
-    document.getElementById('bpValue').textContent = fmtInt(bp.leadsToday) + ' leads';
-    document.getElementById('bpConv').textContent = String(bp.conversionRate).replace('.', ',') + '%';
+    document.getElementById('bpValue').textContent = fmtInt(bp.visitsToday) + ' visitas';
+    document.getElementById('bpSales').textContent = fmtInt(bp.salesToday);
     document.getElementById('bpStore').textContent = storeNameMap[bp.store] || bp.store;
 
     var bt = d.bestAvgTicketSeller;
@@ -963,7 +963,7 @@
 
     document.getElementById('kpiFirstSaleVal').textContent = d.firstSale.time;
     document.getElementById('kpiFirstSaleAv').textContent = initials(d.firstSale.seller);
-    document.getElementById('kpiFirstSaleTxt').textContent = d.firstSale.value + ' · ' + d.firstSale.seller;
+    document.getElementById('kpiFirstSaleTxt').textContent = fmtMoney(d.firstSale.value) + ' · ' + d.firstSale.seller;
     document.getElementById('kpiVisitsVal').textContent = d.mostVisits.value;
     document.getElementById('kpiVisitsAv').textContent = initials(d.mostVisits.seller);
     document.getElementById('kpiVisitsTxt').textContent = 'Destaque: ' + d.mostVisits.seller;
@@ -976,7 +976,7 @@
     document.getElementById('kpiClosingsVal').textContent = d.mostClosings.value;
     document.getElementById('kpiClosingsAv').textContent = initials(d.mostClosings.seller);
     document.getElementById('kpiClosingsTxt').textContent = 'Destaque: ' + d.mostClosings.seller;
-    document.getElementById('kpiRevenueVal').textContent = d.mostRevenue.value;
+    document.getElementById('kpiRevenueVal').textContent = fmtMoney(d.mostRevenue.value);
     document.getElementById('kpiRevenueAv').textContent = initials(d.mostRevenue.seller);
     document.getElementById('kpiRevenueTxt').textContent = 'Destaque: ' + d.mostRevenue.seller;
 
@@ -985,7 +985,7 @@
     }).join('');
     document.getElementById('salesRows').innerHTML = d.recentSales.map(function(s){
       var ok = s.status === 'ok';
-      return '<tr><td>'+s.id+'</td><td>'+s.client+'</td><td>'+s.value+'</td><td><span class="status-pill '+(ok?'ok':'pending')+'">'+(ok?'Fechado':'Em análise')+'</span></td></tr>';
+      return '<tr><td>'+s.id+'</td><td>'+s.client+'</td><td>'+fmtMoney(s.value)+'</td><td><span class="status-pill '+(ok?'ok':'pending')+'">'+(ok?'Fechado':'Em análise')+'</span></td></tr>';
     }).join('');
   }
 
