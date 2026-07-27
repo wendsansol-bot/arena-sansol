@@ -462,7 +462,7 @@
 
     <!-- SCENE 2.5 — Ranking de pré-vendedores -->
     <div class="scene" data-title="Pré-vendedores">
-      <div class="scene-head"><span class="scene-eyebrow">Visitas 60% · Qtd. vendas 40%</span><span class="scene-title">Ranking de Pré-vendedores</span></div>
+      <div class="scene-head"><span class="scene-eyebrow">Visita +3 · Venda +10</span><span class="scene-title">Ranking de Pré-vendedores</span></div>
       <div class="scene-body">
         <div class="podium-stage" id="preSellerPodium"></div>
         <div class="seller-list" id="preSellerList"></div>
@@ -913,7 +913,8 @@
   function renderPreSellerPodium(state){
     var storeNameMap = {}; state.stores.forEach(function(s){ storeNameMap[s.key] = s.name; });
     var list = state.preSellers || [];
-    var scored = withScore(list, 'visits', 'sales', 0.6, 0.4);
+    // Mesmos valores da tela de Pontuação: visita +3, venda +10
+    var scored = list.map(function(s){ return Object.assign({}, s, { score: (s.visits||0)*3 + (s.sales||0)*10 }); });
     var sorted = scored.slice().sort(function(a,b){ return b.score - a.score; });
     var top3 = sorted.slice(0,3), order = [1,0,2], medalCls = ['gold','silver','bronze'], heightCls = ['h1','h2','h3'];
     document.getElementById('preSellerPodium').innerHTML = order.map(function(idx){
