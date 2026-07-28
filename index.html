@@ -133,7 +133,8 @@
   .header-right{ display:flex; align-items:center; gap: 10px; flex: 0 0 auto; }
   .spotlight-card{ display:flex; align-items:center; gap:10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-strong); border-radius: 13px; padding: 6px 14px 6px 8px; }
   .spotlight-avatar{ width:36px; height:36px; border-radius:50%; padding:2px; flex-shrink:0; background: conic-gradient(var(--pv), rgba(255,255,255,0.15)); box-shadow: 0 0 14px rgba(47,214,127,0.5); }
-  .spotlight-avatar .circle{ width:100%; height:100%; border-radius:50%; background: linear-gradient(160deg, var(--panel-2), var(--panel)); display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size: 20px; }
+  .spotlight-avatar .circle{ width:100%; height:100%; border-radius:50%; background: linear-gradient(160deg, var(--panel-2), var(--panel)); display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size: 20px; overflow:hidden; }
+  .spotlight-avatar .circle img{ width:100%; height:100%; object-fit:cover; border-radius:50%; }
   .spotlight-info{ line-height:1.25; }
   .spotlight-info .lbl{ font-family: var(--font-mono); font-size: 15px; color: var(--text-faint); letter-spacing:0.06em; text-transform:uppercase; }
   .spotlight-info .val{ font-size: 19px; font-weight: 700; }
@@ -198,7 +199,8 @@
 
   .avatar-ring{ width:88px; height:88px; border-radius:50%; padding:4px; margin-bottom:10px; }
   .avatar-ring.big{ width:106px; height:106px; }
-  .avatar-circle{ width:100%; height:100%; border-radius:50%; background: linear-gradient(160deg, rgba(30,36,50,0.9), rgba(14,17,25,0.9)); display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size: 41px; box-shadow: inset 0 0 0 2px rgba(0,0,0,0.35); }
+  .avatar-circle{ width:100%; height:100%; border-radius:50%; background: linear-gradient(160deg, rgba(30,36,50,0.9), rgba(14,17,25,0.9)); display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size: 41px; box-shadow: inset 0 0 0 2px rgba(0,0,0,0.35); overflow:hidden; }
+  .avatar-circle img{ width:100%; height:100%; object-fit:cover; border-radius:50%; }
   .avatar-ring.big .avatar-circle{ font-size: 49px; }
 
   .team-cn .avatar-ring{ background: conic-gradient(var(--cn), rgba(255,255,255,0.14)); box-shadow: 0 0 26px rgba(255,122,46,0.55); }
@@ -259,7 +261,8 @@
   .achieve-head{ background: linear-gradient(90deg, var(--gold-2), var(--gold)); color:#1a0e02; font-weight:800; font-size: 16px; letter-spacing:.04em; text-transform:uppercase; text-align:center; padding: 10px 12px; }
   .achieve-body{ padding: 16px 18px; display:flex; flex-direction:column; gap: 10px; flex:1; }
   .achieve-top{ display:flex; align-items:center; gap: 12px; }
-  .achieve-avatar{ width: 56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size: 26px; background: var(--gold-dim); color: var(--gold); flex-shrink:0; }
+  .achieve-avatar{ width: 56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size: 26px; background: var(--gold-dim); color: var(--gold); flex-shrink:0; overflow:hidden; }
+  .achieve-avatar img{ width:100%; height:100%; object-fit:cover; border-radius:50%; }
   .achieve-name{ font-weight: 800; font-size: 21px; line-height:1.15; }
   .achieve-role{ font-size: 15px; color: var(--text-faint); font-family: var(--font-mono); }
   .achieve-value{ font-family: var(--font-display); font-size: 60px; line-height: 1; color: var(--gold); }
@@ -820,6 +823,9 @@
   };
 
   function initials(name){ return (name||'').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase(); }
+  function avatarHtml(name, photo){
+    return photo ? '<img src="'+photo+'" alt="" onerror="this.parentElement.textContent=\''+initials(name)+'\';">' : initials(name);
+  }
   function fmtInt(n){ return Number(n||0).toLocaleString('pt-BR'); }
   function fmtMoney(n){ return 'R$ ' + Number(n||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
   function renderMiniChart(id, trend){
@@ -845,7 +851,7 @@
     var top = scored.slice().sort(function(a,b){ return b.score - a.score; })[0];
     if(top){
       var maxScore = Math.max.apply(null, scored.map(function(s){ return s.score; }));
-      document.getElementById('spotAvatar').textContent = initials(top.name);
+      document.getElementById('spotAvatar').innerHTML = avatarHtml(top.name, top.photo);
       document.getElementById('spotVal').textContent = top.name + ' · ' + fmtInt(top.score) + ' pts';
       document.getElementById('spotBar').style.width = Math.round((top.score / maxScore) * 100) + '%';
     }
@@ -887,7 +893,7 @@
       var crown = rank === 1 ? '<span class="crown-float"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18l-1.5-9-4.5 3-3-6-3 6-4.5-3L3 18Z"/></svg></span>' : '';
       var rankLabel = '<div class="col-rank-label'+(rank===1?' leader':'')+'">'+storeName+' · '+rank+'º lugar</div>';
       return '<div class="podium-col '+medalCls[rank-1]+'">'+crown+
-        '<div class="avatar-ring'+(rank===1?' big':'')+'"><div class="avatar-circle">'+initials(s.name)+'</div></div>'+
+        '<div class="avatar-ring'+(rank===1?' big':'')+'"><div class="avatar-circle">'+avatarHtml(s.name, s.photo)+'</div></div>'+
         '<div class="col-name">'+s.name+'</div>'+rankLabel+
         '<div class="col-score" data-target="'+s.score+'">0<span class="unit">pts</span></div>'+
         '<div class="col-mini">'+fmtMoney(s.revenue)+' · '+fmtInt(s.sales)+' vendas</div>'+
@@ -912,7 +918,7 @@
       var crown = rank === 1 ? '<span class="crown-float"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18l-1.5-9-4.5 3-3-6-3 6-4.5-3L3 18Z"/></svg></span>' : '';
       var rankLabel = '<div class="col-rank-label'+(rank===1?' leader':'')+'">'+storeName+' · '+rank+'º lugar</div>';
       return '<div class="podium-col '+medalCls[rank-1]+'">'+crown+
-        '<div class="avatar-ring'+(rank===1?' big':'')+'"><div class="avatar-circle">'+initials(s.name)+'</div></div>'+
+        '<div class="avatar-ring'+(rank===1?' big':'')+'"><div class="avatar-circle">'+avatarHtml(s.name, s.photo)+'</div></div>'+
         '<div class="col-name">'+s.name+'</div>'+rankLabel+
         '<div class="col-score" data-target="'+s.score+'">0<span class="unit">pts</span></div>'+
         '<div class="col-mini">'+fmtInt(s.visits)+' visitas · '+fmtInt(s.sales)+' vendas</div>'+
@@ -931,21 +937,21 @@
     document.getElementById('storeAchieveValue').textContent = fmtMoney(d.storeAchieveValue) + ' faturados hoje';
 
     var bs = d.bestSellerToday;
-    document.getElementById('bsAvatar').textContent = initials(bs.name);
+    document.getElementById('bsAvatar').innerHTML = avatarHtml(bs.name, bs.photo);
     document.getElementById('bsName').textContent = bs.name;
     document.getElementById('bsValue').textContent = fmtMoney(bs.revenueToday);
     document.getElementById('bsSales').textContent = fmtInt(bs.salesToday);
     document.getElementById('bsStore').textContent = storeNameMap[bs.store] || bs.store;
 
     var bp = d.bestPreSellerToday;
-    document.getElementById('bpAvatar').textContent = initials(bp.name);
+    document.getElementById('bpAvatar').innerHTML = avatarHtml(bp.name, bp.photo);
     document.getElementById('bpName').textContent = bp.name;
     document.getElementById('bpValue').textContent = fmtInt(bp.visitsToday) + ' visitas';
     document.getElementById('bpSales').textContent = fmtInt(bp.salesToday);
     document.getElementById('bpStore').textContent = storeNameMap[bp.store] || bp.store;
 
     var bt = d.bestAvgTicketSeller;
-    document.getElementById('btAvatar').textContent = initials(bt.name);
+    document.getElementById('btAvatar').innerHTML = avatarHtml(bt.name, bt.photo);
     document.getElementById('btName').textContent = bt.name;
     document.getElementById('btValue').textContent = fmtMoney(bt.avgTicket);
     document.getElementById('btTrans').textContent = fmtInt(bt.transactions);
