@@ -387,18 +387,7 @@
   <div class="hud-corner br"></div>
 
   <div class="ticker" role="marquee" aria-label="Placar ao vivo">
-    <div class="ticker-track">
-      <span>🔥 AUGUSTO MONTENEGRO assume a liderança geral do Duelo</span>
-      <span>⚡ CIDADE NOVA é a Loja Líder do Dia de hoje</span>
-      <span>🏆 41 vendas fechadas na campanha até agora</span>
-      <span>📈 251 leads qualificados cadastrados</span>
-      <span>🎯 Novas missões relâmpago em breve</span>
-      <span>🔥 AUGUSTO MONTENEGRO assume a liderança geral do Duelo</span>
-      <span>⚡ CIDADE NOVA é a Loja Líder do Dia de hoje</span>
-      <span>🏆 41 vendas fechadas na campanha até agora</span>
-      <span>📈 251 leads qualificados cadastrados</span>
-      <span>🎯 Novas missões relâmpago em breve</span>
-    </div>
+    <div class="ticker-track" id="tickerTrack"></div>
   </div>
 
   <div class="tv-header">
@@ -990,7 +979,27 @@
     }).join('');
   }
 
+  function renderTicker(state){
+    var storeNameMap = {}; state.stores.forEach(function(s){ storeNameMap[s.key] = s.name; });
+    var topStore = state.stores.slice().sort(function(a,b){ return b.points - a.points; })[0];
+    var dayLeaderName = storeNameMap[state.daily.topRevenueStore] || state.daily.topRevenueStore;
+    var topSeller = state.sellers && state.sellers.length
+      ? state.sellers.slice().sort(function(a,b){ return b.revenue - a.revenue; })[0] : null;
+
+    var items = [
+      '🔥 ' + (topStore ? topStore.name.toUpperCase() : '—') + ' assume a liderança geral do Duelo',
+      '⚡ ' + (dayLeaderName || '—').toUpperCase() + ' é a loja com maior faturamento hoje',
+      '🏆 ' + fmtInt(state.totals.sales) + ' vendas fechadas na campanha até agora',
+      '📈 ' + fmtInt(state.totals.leads) + ' leads qualificados cadastrados',
+      topSeller ? '🥇 ' + topSeller.name + ' lidera o ranking de vendedores' : '🎯 Missões relâmpago em breve'
+    ];
+
+    var html = items.map(function(t){ return '<span>'+t+'</span>'; }).join('');
+    document.getElementById('tickerTrack').innerHTML = html + html; // duplicado pro loop contínuo
+  }
+
   function renderAll(state){
+    renderTicker(state);
     renderHeader(state);
     renderStorePodium(state.stores);
     renderTotals(state.totals);
